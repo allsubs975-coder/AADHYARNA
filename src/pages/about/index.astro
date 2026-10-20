@@ -126,10 +126,28 @@ const contactRows = [
   }
 
   .about__point {
+    position: relative;
     padding: var(--space-5);
     background-color: var(--color-paper);
+    background-image: linear-gradient(
+      180deg,
+      rgb(255 255 255 / 0.8),
+      rgb(255 255 255 / 0) 60%
+    );
     border: 1px solid var(--color-line);
     border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+
+  .about__point::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: var(--edge-gold);
+    opacity: 0.5;
+    pointer-events: none;
   }
 
   .about__point-title {
@@ -145,15 +163,28 @@ const contactRows = [
   }
 
   .about__contact {
+    position: relative;
+    overflow: hidden;
     margin-top: var(--space-8);
     padding: clamp(1.5rem, 4vw, 2.5rem);
     border: 1px solid var(--color-line);
     border-radius: var(--radius-lg);
     background-color: var(--color-white);
+    box-shadow: var(--shadow-card);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-4);
+  }
+
+  .about__contact::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: var(--edge-gold);
+    opacity: 0.7;
+    pointer-events: none;
   }
 
   .about__contact-title {

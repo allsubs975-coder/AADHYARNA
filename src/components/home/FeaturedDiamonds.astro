@@ -40,6 +40,20 @@ const featured = diamonds.filter((d) => d.hasReport).slice(0, 8);
 </section>
 
 <style>
+  .featured {
+    position: relative;
+    background-image: radial-gradient(
+        70% 50% at 100% 0%,
+        rgb(201 162 75 / 0.1),
+        transparent 65%
+      ),
+      radial-gradient(
+        60% 50% at 0% 100%,
+        rgb(150 104 44 / 0.07),
+        transparent 70%
+      );
+  }
+
   .featured__grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

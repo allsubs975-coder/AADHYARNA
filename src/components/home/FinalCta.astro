@@ -16,6 +16,11 @@ const c = home.cta;
 </section>
 
 <style>
+  .final-cta {
+    background-image: var(--wash-ink-deep);
+    text-align: center;
+  }
+
   .final-cta__inner {
     display: flex;
     flex-direction: column;
@@ -24,6 +29,28 @@ const c = home.cta;
     gap: var(--space-4);
     max-width: 46rem;
     margin-inline: auto;
+    position: relative;
+  }
+
+  /* Soft champagne halo behind the CTA heading */
+  .final-cta__inner::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -55%;
+    width: min(34rem, 90vw);
+    height: min(22rem, 60vw);
+    background: radial-gradient(
+      closest-side,
+      rgb(216 184 119 / 0.16),
+      transparent 75%
+    );
+    pointer-events: none;
+  }
+
+  .final-cta__inner > * {
+    position: relative;
   }
 
   .final-cta__inner h2 {

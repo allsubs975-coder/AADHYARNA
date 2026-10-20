@@ -317,7 +317,8 @@ section('content');
 
 check('catalogue renders every diamond as a card', () => {
   const html = read(path.join(DIST, 'diamonds', 'index.html'));
-  const cards = (html.match(/data-diamond-card/g) ?? []).length;
+  // Count rendered <article> cards only — scripts may reference the attribute too.
+  const cards = (html.match(/<article[^>]*data-diamond-card/g) ?? []).length;
   if (cards !== diamonds.length) fail(`${cards} cards, expected ${diamonds.length}`);
 });
 
@@ -337,7 +338,7 @@ check('detail page shows the recorded specifications (spot check)', () => {
 
 check('family page counts match the inventory', () => {
   const html = read(path.join(DIST, 'diamonds', 'family', 'oval', 'index.html'));
-  const cards = (html.match(/data-diamond-card/g) ?? []).length;
+  const cards = (html.match(/<article[^>]*data-diamond-card/g) ?? []).length;
   const expected = diamonds.filter((d) => d.shapeFamily === 'oval').length;
   if (cards !== expected) fail(`${cards} oval cards, expected ${expected}`);
 });

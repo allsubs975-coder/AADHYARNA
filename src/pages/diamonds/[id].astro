@@ -227,17 +227,35 @@ const jsonLd = site.url
   }
 
   .detail__stage {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     aspect-ratio: 1;
     padding: var(--space-6);
+    overflow: hidden;
     background:
+      radial-gradient(
+        110% 80% at 50% -5%,
+        rgb(216 184 119 / 0.16),
+        transparent 65%
+      ),
       radial-gradient(120% 90% at 50% 0%, rgb(255 255 255 / 0.95), transparent 70%),
       var(--color-white);
     border: 1px solid var(--color-line);
     border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
     color: var(--color-ink-soft);
+  }
+
+  .detail__stage::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: var(--edge-gold);
+    opacity: 0.7;
+    pointer-events: none;
   }
 
   .detail__sil {

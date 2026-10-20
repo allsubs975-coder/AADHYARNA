@@ -178,12 +178,25 @@ const rows = columns.length > 0 ? columns[0].specs.map((row, i) => ({ row, i }))
   }
 
   .compare__wrap {
+    position: relative;
     margin-top: var(--space-3);
     overflow-x: auto;
     border: 1px solid var(--color-line);
     border-radius: var(--radius-lg);
     background-color: var(--color-white);
+    box-shadow: var(--shadow-card);
     -webkit-overflow-scrolling: touch;
+  }
+
+  .compare__wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: var(--edge-gold);
+    opacity: 0.7;
+    pointer-events: none;
+    z-index: 2;
   }
 
   .compare__table {

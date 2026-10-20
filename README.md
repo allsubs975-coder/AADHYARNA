@@ -54,6 +54,7 @@ polish are **done**. Nothing in this list needs rebuilding:
 | Unit + dist tests | `npm test` → **32 + 35 = 67 checks green** |
 | Visual/a11y sweep | `npm run check:visual` → 12 routes × 2 viewports OK (axe clean) |
 | Interaction tests | `npm run test:browser` → **39/39 green** |
+| Visual theme | **Rich light + dark drama** pass applied site-wide (see §10): warm ambient washes, gold hairline edges, dark hero/ink sections, 3D tilt diamond cards |
 | Inventory | 145 diamonds imported from the Excel source; audit report generated |
 | Privacy | 0 grading-report numbers, media hosts or URLs in `dist/` (automated scan) |
 | Pages | homepage, `/diamonds` + 22 family pages, 145 detail pages, wishlist, compare, education, about, contact, privacy, terms, 404 |
@@ -248,6 +249,25 @@ line and `sitemap.xml` becomes a full `urlset` (verified automatically).
 - `src/styles/tokens.css` — the single source for colours (incl.
   `--color-whatsapp: #0e7468`), spacing, radii, shadows, type scale, motion.
   Brand colours are defined **only here**, never inside components.
+- **Theme direction: “rich light + dark drama”.** Layered CSS-only effects —
+  no images, no filters beyond the header blur:
+  - `--wash-warm` / `--wash-ink` / `--wash-ink-deep` — reusable radial ambient
+    washes (warm gold veils) applied to the body, `.section--ink`, footer and
+    CTA bands.
+  - `--edge-gold` — champagne gradient hairline used as the top accent on
+    elevated panels, cards, `.section--paper` / `.section--ink`, header and
+    footer.
+  - `--shadow-card` / `--shadow-card-hover` — resting and hover elevation for
+    cards/panels; `--glow-gold` / `--glow-ink` — gold-rim glow states.
+  - Dark drama: the hero panel and all `section--ink` bands (brand, CTA,
+    footer) use ink gradients with gold pools; the hero panel swaps to the
+    `Logo variant="ink"` monogram.
+- **Diamond cards (`DiamondCard.astro`)**: pointer-driven 3D tilt
+  (`perspective(900px) rotateX/rotateY` via `--rx`/`--ry`) + 6px lift, gold
+  crown hairline, one-shot media light sweep, gold silhouette on hover. The
+  effect is driven by a ~1 KB inline delegated script that runs **only** on
+  fine-pointer devices and never under `prefers-reduced-motion`; touch
+  devices get CSS-only fallbacks (no tilt, no sweep).
 - `src/styles/fonts.css` — self-hosted `@font-face` (no external font CDN).
 - `src/styles/global.css` — resets, base typography, layout utilities, `.prose`
   for editorial pages, `[hidden]` override, and the JS-gating utilities
@@ -352,7 +372,8 @@ All directory routes end with a trailing slash (`build.format: 'directory'`).
 ## 17. Performance
 
 - Fully static HTML + CSS; ~4–11 KB of vanilla JS per page (catalogue,
-  actions, compare — loaded only where used).
+  actions, compare — loaded only where used). Card 3D tilt adds a ~1 KB
+  inline script (one delegated `pointermove`, fine-pointer devices only).
 - **Images**: the only raster assets are the monogram, the two icons and the
   Open Graph card. Every `<img>` uses a responsive `srcset`/`sizes` pair
   generated at exactly the widths declared in `config/brand.ts#logoAssets`

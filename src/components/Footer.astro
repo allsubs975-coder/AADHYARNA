@@ -97,10 +97,24 @@ const contact = brand.contact;
 
 <style>
   .site-footer {
+    position: relative;
     background-color: var(--color-ink);
+    background-image: var(--wash-ink);
+    background-repeat: no-repeat;
     color: var(--color-muted-on-ink);
     margin-top: auto;
     padding-top: clamp(2.75rem, 6vw, 4.5rem);
+    border-top: 1px solid rgb(201 162 75 / 0.3);
+  }
+
+  .site-footer::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: var(--edge-gold);
+    opacity: 0.6;
+    pointer-events: none;
   }
 
   .site-footer__grid {

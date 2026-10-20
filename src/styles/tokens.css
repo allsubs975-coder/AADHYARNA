@@ -20,10 +20,10 @@
      gold-ink    gold-toned TEXT and links on light surfaces (AA compliant)
      gold-bright gold-toned TEXT on dark/ink surfaces (AA compliant)
   --------------------------------------------------------------------- */
-  --color-ivory: #f4efe6; /* page background            */
+  --color-ivory: #f2ecdf; /* page background            */
   --color-paper: #fbf9f5; /* soft white surfaces        */
   --color-white: #ffffff;
-  --color-ink: #17160f; /* primary text / dark panels  */
+  --color-ink: #14130d; /* primary text / dark panels  */
   --color-ink-soft: #3a372f; /* secondary headings          */
   --color-muted: #6b6559; /* body / meta text on light   */
   --color-muted-on-ink: #b9b2a4; /* body text on dark panels    */
@@ -34,6 +34,39 @@
   --color-gold-deep: #96682c; /* deep gold (decorative)      */
   --color-gold-ink: #7a5522; /* gold text on light surfaces */
   --color-gold-bright: #d8b877; /* gold text on dark surfaces  */
+
+  /* Rich ambient washes — layered page/section backgrounds.
+     Cheap radial gradients only; no images, no filters. */
+  --wash-warm: radial-gradient(
+    90% 70% at 88% -8%,
+    rgb(201 162 75 / 0.16),
+    transparent 62%
+  ),
+    radial-gradient(
+      70% 60% at -10% 108%,
+      rgb(150 104 44 / 0.12),
+      transparent 66%
+    );
+  --wash-ink: radial-gradient(
+      80% 90% at 12% 0%,
+      rgb(216 184 119 / 0.14),
+      transparent 60%
+    ),
+    radial-gradient(
+      75% 85% at 95% 100%,
+      rgb(201 162 75 / 0.12),
+      transparent 62%
+    );
+  --wash-ink-deep: radial-gradient(
+      60% 70% at 50% -10%,
+      rgb(216 184 119 / 0.2),
+      transparent 65%
+    ),
+    radial-gradient(
+      90% 80% at 50% 120%,
+      rgb(150 104 44 / 0.16),
+      transparent 60%
+    );
   /* WhatsApp action button. Darkened from the well-known #128c7e so the
      white label reaches WCAG AA (4.5:1) — axe flags #128c7e at 4.1:1. */
   --color-whatsapp: #0e7468;
@@ -97,6 +130,22 @@
   --shadow-sm: 0 2px 8px rgb(23 22 15 / 0.06);
   --shadow-md: 0 10px 30px rgb(23 22 15 / 0.08);
   --shadow-lg: 0 24px 60px rgb(23 22 15 / 0.14);
+  --shadow-card: 0 1px 2px rgb(23 22 15 / 0.04), 0 6px 18px rgb(23 22 15 / 0.05);
+  --shadow-card-hover: 0 2px 4px rgb(23 22 15 / 0.05),
+    0 14px 34px rgb(23 22 15 / 0.1), 0 30px 60px rgb(150 104 44 / 0.1);
+  --glow-gold: 0 0 0 1px rgb(201 162 75 / 0.35),
+    0 10px 34px rgb(150 104 44 / 0.14);
+  --glow-ink: 0 0 0 1px rgb(201 162 75 / 0.3),
+    0 18px 50px rgb(20 19 13 / 0.35);
+  /* Champagne hairline used along the top edge of elevated panels. */
+  --edge-gold: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(201 162 75 / 0.55) 20%,
+    rgb(216 184 119 / 0.8) 50%,
+    rgb(201 162 75 / 0.55) 80%,
+    transparent 100%
+  );
 
   --container: 1240px;
   --container-narrow: 780px;
