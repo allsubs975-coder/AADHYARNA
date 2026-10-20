@@ -126,6 +126,8 @@ const attrs = filterable
 
 <style>
   .dcard {
+    --rx: 0deg;
+    --ry: 0deg;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -134,15 +136,28 @@ const attrs = filterable
     border-radius: var(--radius-lg);
     overflow: hidden;
     transition:
-      border-color var(--duration) var(--ease),
-      box-shadow var(--duration) var(--ease),
-      transform var(--duration) var(--ease);
+      border-color 280ms var(--ease),
+      box-shadow 280ms var(--ease);
   }
 
-  .dcard:hover {
-    border-color: var(--color-line-strong);
-    box-shadow: var(--shadow-sm);
-    transform: translateY(-2px);
+  /* Gold crown accent — revealed on hover */
+  .dcard::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--color-gold) 22%,
+      var(--color-gold-deep) 50%,
+      var(--color-gold) 78%,
+      transparent 100%
+    );
+    opacity: 0;
+    transition: opacity 280ms var(--ease);
+    z-index: 3;
+    pointer-events: none;
   }
 
   .dcard__link {
@@ -170,14 +185,59 @@ const attrs = filterable
       var(--color-white);
     border-bottom: 1px solid var(--color-line);
     color: var(--color-ink-soft);
+    isolation: isolate;
+  }
+
+  /* Soft champagne glow behind the silhouette */
+  .dcard__media::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    width: 10.5rem;
+    height: 10.5rem;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(201 162 75 / 0.15), transparent 68%);
+    opacity: 0.65;
+    transition:
+      opacity 280ms var(--ease),
+      transform 420ms var(--ease);
+    pointer-events: none;
+  }
+
+  /* One-shot light sweep across the media on hover */
+  .dcard__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 36%,
+      rgb(255 255 255 / 0.55) 47%,
+      rgb(201 162 75 / 0.16) 52%,
+      transparent 64%
+    );
+    transform: translateX(-130%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .dcard__sil {
+    position: relative;
+    z-index: 1;
+    transition: color 320ms var(--ease);
   }
 
   .dcard__family {
+    position: relative;
+    z-index: 1;
     font-size: var(--text-2xs);
     font-weight: 600;
     letter-spacing: var(--tracking-wide);
     text-transform: uppercase;
     color: var(--color-muted);
+    transition: color 280ms var(--ease);
   }
 
   .dcard__body {
@@ -312,9 +372,147 @@ const attrs = filterable
     color: var(--color-muted);
   }
 
+  /* ---------------------------------------------------------- 3D tilt
+     Fine-pointer devices only: perspective tilt driven by --rx / --ry
+     (set from a tiny delegated script) plus a lift and gold rim. */
+  @media (hover: hover) and (pointer: fine) {
+    .dcard {
+      transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+      transition:
+        border-color 280ms var(--ease),
+        box-shadow 280ms var(--ease),
+        transform 200ms var(--ease);
+    }
+
+    .dcard:hover {
+      border-color: rgb(201 162 75 / 0.7);
+      box-shadow:
+        0 1px 2px rgb(23 22 15 / 0.04),
+        0 10px 28px rgb(23 22 15 / 0.1),
+        0 22px 48px rgb(150 104 44 / 0.1);
+      transform: perspective(900px) translateY(-6px) rotateX(var(--rx))
+        rotateY(var(--ry));
+      z-index: 2;
+    }
+
+    .dcard:hover::before {
+      opacity: 1;
+    }
+
+    .dcard:hover .dcard__media {
+      background:
+        radial-gradient(120% 90% at 50% 0%, rgb(255 255 255 / 0.96), transparent 72%),
+        radial-gradient(90% 55% at 50% 100%, rgb(201 162 75 / 0.07), transparent 70%),
+        var(--color-white);
+    }
+
+    .dcard:hover .dcard__media::before {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .dcard:hover .dcard__media::after {
+      animation: dcard-sheen 1.05s var(--ease) forwards;
+    }
+
+    .dcard:hover .dcard__sil {
+      color: var(--color-gold-deep);
+    }
+
+    .dcard:hover .dcard__family {
+      color: var(--color-gold-ink);
+    }
+  }
+
+  @keyframes dcard-sheen {
+    0% {
+      transform: translateX(-130%);
+      opacity: 0;
+    }
+    12% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(130%);
+      opacity: 0;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
+    .dcard,
     .dcard:hover {
       transform: none;
     }
+
+    .dcard:hover .dcard__media::after {
+      animation: none;
+    }
   }
 </style>
+
+<script>
+  /**
+   * Progressive 3D tilt — writes --rx / --ry on the hovered card only.
+   * Skipped entirely on touch devices and for prefers-reduced-motion.
+   * One delegated listener for the whole page (no per-card binding).
+   */
+  const SELECTOR = '[data-diamond-card]';
+  const MAX_DEG = 7;
+
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  let active: HTMLElement | null = null;
+
+  const reset = (card: HTMLElement) => {
+    card.style.setProperty('--rx', '0deg');
+    card.style.setProperty('--ry', '0deg');
+  };
+
+  const tilt = (card: HTMLElement, clientX: number, clientY: number) => {
+    const r = card.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0) return;
+    const px = (clientX - r.left) / r.width - 0.5;
+    const py = (clientY - r.top) / r.height - 0.5;
+    card.style.setProperty('--ry', `${(px * MAX_DEG * 2).toFixed(2)}deg`);
+    card.style.setProperty('--rx', `${(-py * MAX_DEG * 2).toFixed(2)}deg`);
+  };
+
+  const onMove = (e: PointerEvent) => {
+    if (e.pointerType !== 'mouse') return;
+    const target = e.target instanceof Element ? e.target : null;
+    const card = target?.closest(SELECTOR) as HTMLElement | null;
+    if (card !== active) {
+      if (active) reset(active);
+      active = card;
+    }
+    if (card) tilt(card, e.clientX, e.clientY);
+  };
+
+  const onLeaveWindow = () => {
+    if (active) reset(active);
+    active = null;
+  };
+
+  const attach = () => {
+    document.addEventListener('pointermove', onMove, { passive: true });
+    document.addEventListener('pointerleave', onLeaveWindow);
+  };
+
+  const detach = () => {
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerleave', onLeaveWindow);
+    onLeaveWindow();
+  };
+
+  if (finePointer.matches && !reduceMotion.matches) attach();
+
+  finePointer.addEventListener('change', () => {
+    if (finePointer.matches && !reduceMotion.matches) attach();
+    else detach();
+  });
+  reduceMotion.addEventListener('change', () => {
+    if (reduceMotion.matches) detach();
+    else if (finePointer.matches) attach();
+  });
+</script>
