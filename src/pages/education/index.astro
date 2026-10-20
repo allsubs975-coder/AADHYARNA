@@ -1,0 +1,294 @@
+---
+/**
+ * Diamond education — six guides keyed to the anchors used across the site
+ * (#carat, #colour, #clarity, #cut, #reports, #lab-grown).
+ * Edit the copy here; nothing else needs to change.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs, { type Crumb } from '../../components/Breadcrumbs.astro';
+
+const title = 'Diamond Education — Carat, Colour, Clarity, Cut & Lab-Grown | AADHYARNA';
+const description =
+  'Short, practical guides to the specifications used across the AADHYARNA catalogue: carat weight, colour and clarity grades, proportions, grading reports and how lab-grown diamonds are made.';
+
+const crumbs: Crumb[] = [{ label: 'Home', href: '/' }, { label: 'Education' }];
+
+const sections = [
+  { id: 'carat', label: 'Carat weight' },
+  { id: 'colour', label: 'Colour' },
+  { id: 'clarity', label: 'Clarity' },
+  { id: 'cut', label: 'Cut & proportions' },
+  { id: 'reports', label: 'Grading reports' },
+  { id: 'lab-grown', label: 'Lab-grown diamonds' },
+];
+---
+
+<BaseLayout title={title} description={description} path="/education/">
+  <Breadcrumbs items={crumbs} />
+
+  <section class="section section--tight">
+    <div class="container">
+      <p class="eyebrow">Diamond education</p>
+      <h1>Understand what you are looking at</h1>
+      <p class="lede">
+        Six short guides to the specifications printed next to every diamond in our
+        catalogue. No jargon for its own sake — just what each figure means, and where it
+        stops being useful.
+      </p>
+
+      <nav class="toc" aria-label="On this page">
+        <ul class="toc__list" role="list">
+          {
+            sections.map((s) => (
+              <li>
+                <a class="toc__link" href={`#${s.id}`}>
+                  {s.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div class="prose education__body">
+        <section aria-labelledby="carat">
+          <h2 id="carat">Carat weight</h2>
+          <p>
+            A carat is a unit of mass — one carat is exactly 0.2 grams. It measures how
+            much a diamond weighs, and nothing else. Two diamonds can both weigh 1.00 ct
+            and still look noticeably different, because weight is distributed between the
+            crown (above the girdle) and the pavilion (below it).
+          </p>
+          <p>
+            <strong>Face-up size</strong> comes from the diameter, not the weight. In
+            rounds, compare the millimetre measurements; in fancy shapes, compare the
+            length and width. A well-proportioned 0.90 ct stone can face up larger than a
+            deep 1.00 ct stone.
+          </p>
+          <p>
+            In our inventory the weight is recorded to two decimal places, exactly as it
+            was graded. Carat is one of the few specifications that scales in price
+            sharply — a round number such as 1.00 ct is common in listings precisely
+            because demand concentrates there, while 0.90–0.98 ct stones can look
+            equivalent for meaningfully less.
+          </p>
+        </section>
+
+        <section aria-labelledby="colour">
+          <h2 id="colour">Colour</h2>
+          <p>
+            The standard scale runs from D (colourless) to Z (light yellow or brown),
+            graded face-down against a master stone so the body colour shows without
+            distraction from the stone's brilliance. Once a stone passes Z it enters the
+            <em>fancy</em> range, where colour is graded by intensity — Fancy, Fancy
+            Intense, Fancy Vivid — and by hue name.
+          </p>
+          <p>
+            Colour matters more as stones get larger, and more in white metal settings
+            that give a warm tint nowhere to hide. Cut style changes the picture too: a
+            step cut with broad, open facets shows body colour more directly than a
+            brilliant cut that breaks light into sparkle.
+          </p>
+          <p>
+            Our catalogue records the grade exactly as given by the grader — D, E, F, or
+            a fancy designation — and shows fancy stones under a separate filter so you
+            can compare like with like.
+          </p>
+        </section>
+
+        <section aria-labelledby="clarity">
+          <h2 id="clarity">Clarity</h2>
+          <p>
+            Clarity grades describe inclusions (materials inside the stone) and blemishes
+            (features on its surface) as seen under 10× magnification by a trained grader.
+            The ladder runs FL → IF → VVS1 → VVS2 → VS1 → VS2 → SI1 → SI2 → I1–I3.
+          </p>
+          <p>
+            <strong>Eye-clean</strong> is the practical test: no inclusion visible to the
+            unaided eye from a normal viewing distance. Many VS and even SI stones are
+            eye-clean, and where an inclusion sits can matter as much as its grade — a
+            small mark under the table (the flat top facet) is harder to ignore than the
+            same mark near the girdle.
+          </p>
+          <p>
+            Facet style matters here as well. Step cuts — emerald, baguette, portrait —
+            are less forgiving than brilliant styles, because their large facets act like
+            windows. Antique cuts with broad facets sit somewhere in between: they were
+            cut for personality, not for hiding a grade.
+          </p>
+        </section>
+
+        <section aria-labelledby="cut">
+          <h2 id="cut">Cut &amp; proportions</h2>
+          <p>
+            For standard round brilliants, <em>cut grade</em> is a single letter
+            summarising light performance — brightness, fire, sparkle and how well the
+            proportions work together. For fancy and antique shapes there is no universal
+            letter grade, so proportion figures do the talking.
+          </p>
+          <dl>
+            <dt>Depth (%)</dt>
+            <dd>
+              Total height divided by the average diameter. Too deep and the weight is
+              hidden below the girdle; too shallow and light leaks out the bottom.
+            </dd>
+            <dt>Table (%)</dt>
+            <dd>
+              Width of the flat top facet divided by the average diameter. A larger table
+              usually reads as a cleaner, more open face; a smaller one tends to
+              concentrate sparkle.
+            </dd>
+            <dt>Measurements</dt>
+            <dd>
+              Length × width × depth in millimetres — the honest comparison for face-up
+              size, and the only size figure that works across shapes.
+            </dd>
+          </dl>
+          <p>
+            Our catalogue records depth and table where they were measured. Some stones
+            arrive without them; those read <em>Not recorded</em> rather than an invented
+            number. Polish and symmetry are graded separately and appear on every card.
+          </p>
+        </section>
+
+        <section aria-labelledby="reports">
+          <h2 id="reports">Grading reports</h2>
+          <p>
+            A grading report is a laboratory's written description of one diamond: its
+            identity (weight, measurements), the four Cs, proportions, and often
+            fluorescence and a plot of inclusions. It lets you compare two stones on
+            paper before you ever see them.
+          </p>
+          <p>
+            <strong>What a report is not:</strong> it is not a valuation, not a warranty
+            of beauty or durability, and not a guarantee that two stones graded the same
+            will look the same. Grading is skilled human work with natural variation —
+            read the report alongside the video and images, not instead of them.
+          </p>
+          <p>
+            Each of our diamonds carries its report where one exists — some records arrive
+            without one, and we say so. Report numbers are treated as private: we share
+            them directly with you on request so you can check them with the issuing
+            laboratory, rather than publishing them across this site.
+          </p>
+        </section>
+
+        <section aria-labelledby="lab-grown">
+          <h2 id="lab-grown">Lab-grown diamonds</h2>
+          <p>
+            Lab-grown diamonds are grown from a diamond seed using one of two main
+            processes: <strong>HPHT</strong> (high pressure, high temperature) or
+            <strong>CVD</strong> (chemical vapour deposition). Both produce crystalline
+            carbon in the same crystal structure as a mined diamond.
+          </p>
+          <p>
+            Because the material is the same, the physical, chemical and optical
+            properties are the same — the same hardness, the same refractive behaviour,
+            the same ways of cutting and setting. What differs is origin, and the growth
+            signatures that leave trace evidence for trained equipment to find (growth
+            patterns, strain, tiny inclusions specific to the process).
+          </p>
+          <p>
+            Trade rules require them to be disclosed and sold as lab-grown, and grading
+            laboratories label their reports accordingly. Day to day, care is identical:
+            clean with warm water, mild soap and a soft brush, and store pieces so they
+            cannot scratch each other.
+          </p>
+        </section>
+      </div>
+
+      <div class="education__cta">
+        <p class="education__cta-text">
+          Reading is useful — seeing the numbers side by side is better.
+        </p>
+        <div class="education__cta-actions">
+          <a class="btn btn--primary" href="/diamonds">Browse the catalogue</a>
+          <a class="btn btn--outline" href="/education#reports">How reports are handled</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .toc {
+    margin-top: var(--space-6);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .toc__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .toc__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 0.35rem 0.9rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-paper);
+    color: var(--color-ink-soft);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      color var(--duration) var(--ease),
+      border-color var(--duration) var(--ease),
+      background-color var(--duration) var(--ease);
+  }
+
+  .toc__link:hover {
+    color: var(--color-gold-ink);
+    border-color: var(--color-gold);
+    background-color: var(--color-white);
+  }
+
+  .education__body {
+    margin-top: var(--space-8);
+  }
+
+  .education__body section > * + * {
+    margin-top: var(--space-4);
+  }
+
+  .education__body section + section > h2 {
+    margin-top: var(--space-8);
+  }
+
+  .education__body section:first-child > h2 {
+    margin-top: 0;
+  }
+
+  .education__cta {
+    margin-top: var(--space-10);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .education__cta-text {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--color-ink);
+    max-width: 36ch;
+  }
+
+  .education__cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+</style>

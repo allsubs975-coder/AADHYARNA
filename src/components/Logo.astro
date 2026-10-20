@@ -1,0 +1,91 @@
+---
+/**
+ * Monogram + wordmark lockup.
+ * The monogram image is decorative here — the wordmark text beside it always
+ * carries the accessible name, so the image gets an empty alt.
+ */
+import { brand } from '../config/brand';
+
+interface Props {
+  /** 'ink' swaps in the monogram composited for dark surfaces. */
+  variant?: 'light' | 'ink';
+  /** Hide the AADHYARNA wordmark (e.g. footer on narrow screens). */
+  showWordmark?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  class?: string;
+}
+
+const {
+  variant = 'light',
+  showWordmark = true,
+  size = 'md',
+  class: className = '',
+} = Astro.props;
+
+const src = variant === 'ink' ? brand.logo.onInk : brand.logo.light;
+const srcset = variant === 'ink' ? brand.logo.onInkSrcset : brand.logo.lightSrcset;
+const sizes = { sm: '2.25rem', md: '2.75rem', lg: '4.5rem' } as const;
+/** Rendered width per size (monogram is 2:1) — passed to the `sizes` attribute. */
+const imgSizes = { sm: '72px', md: '88px', lg: '144px' } as const;
+---
+
+<span class:list={['logo', `logo--${size}`, className]}>
+  <img
+    class="logo__mark"
+    src={src}
+    srcset={srcset}
+    sizes={imgSizes[size]}
+    alt=""
+    width="432"
+    height="216"
+    decoding="async"
+    style={`--logo-h:${sizes[size]}`}
+  />
+  {
+    showWordmark ? (
+      <span class="logo__word">AADHYARNA</span>
+    ) : (
+      <span class="sr-only">{brand.name}</span>
+    )
+  }
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  .logo__mark {
+    height: var(--logo-h, 2.75rem);
+    width: auto;
+    flex: none;
+  }
+
+  .logo__word {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    font-size: var(--text-lg);
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .logo--sm .logo__word {
+    font-size: var(--text-md);
+  }
+
+  .logo--lg .logo__word {
+    font-size: var(--text-2xl);
+  }
+
+  @media (max-width: 480px) {
+    .logo__word {
+      font-size: var(--text-md);
+      letter-spacing: 0.1em;
+    }
+  }
+</style>

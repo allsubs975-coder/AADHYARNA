@@ -1,0 +1,320 @@
+---
+/**
+ * Product card — server-rendered for every diamond, then enhanced by the
+ * shared actions script (save / compare). The whole card is a single link;
+ * the two toggle buttons are siblings of that link so nothing interactive is
+ * nested inside another interactive element.
+ *
+ * `filterable` adds the data-* attributes the catalogue uses to re-filter and
+ * re-sort without shipping the inventory to the client a second time.
+ */
+import { features } from '../config/features';
+import { familyById } from '../config/shapes';
+import type { Diamond } from '../lib/types';
+import { formatCarat, orDash, availabilityLabel } from '../lib/format';
+import ShapeSilhouette from './ShapeSilhouette.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  diamond: Diamond;
+  /** Adds filter data attributes (catalogue grid only). */
+  filterable?: boolean;
+  class?: string;
+}
+
+const { diamond: d, filterable = false, class: className = '' } = Astro.props;
+const family = familyById(d.shapeFamily);
+const href = `/diamonds/${encodeURIComponent(d.id)}/`;
+
+const attrs = filterable
+  ? {
+      'data-family': d.shapeFamily,
+      'data-shape': d.shape,
+      'data-weight': String(d.weight),
+      'data-color': d.color,
+      'data-color-type': d.colorType,
+      'data-clarity': d.clarity,
+      'data-polish': d.polish ?? '',
+      'data-sym': d.symmetry ?? '',
+      'data-fl': d.fluorescence ?? '',
+      'data-availability': d.availability,
+      'data-report': d.hasReport ? 'yes' : 'no',
+      'data-depth': d.depth === null ? '' : String(d.depth),
+      'data-table': d.table === null ? '' : String(d.table),
+    }
+  : {};
+---
+
+<article
+  class:list={['dcard', className]}
+  data-diamond-card
+  data-id={d.id}
+  {...attrs}
+  style="content-visibility:auto;contain-intrinsic-size:auto 420px;"
+>
+  <a class="dcard__link" href={href}>
+    <div class="dcard__media" aria-hidden="true">
+      <ShapeSilhouette id={family.silhouette} size="lg" class="dcard__sil" />
+      <span class="dcard__family">{family.label}</span>
+    </div>
+
+    <div class="dcard__body">
+      <p class="dcard__id tabular">{d.id}</p>
+      <h3 class="dcard__title">
+        <span class="dcard__carat tabular">{formatCarat(d.weight)}</span>
+        <span class="dcard__shape">{d.shape}</span>
+      </h3>
+
+      <dl class="dcard__specs">
+        <div>
+          <dt>Colour</dt>
+          <dd>{d.color}</dd>
+        </div>
+        <div>
+          <dt>Clarity</dt>
+          <dd>{d.clarity}</dd>
+        </div>
+        <div>
+          <dt>Polish</dt>
+          <dd>{orDash(d.polish)}</dd>
+        </div>
+        <div>
+          <dt>Symmetry</dt>
+          <dd>{orDash(d.symmetry)}</dd>
+        </div>
+      </dl>
+
+      <span class="dcard__cta">
+        View details
+        <Icon name="arrowRight" size={15} />
+      </span>
+    </div>
+  </a>
+
+  <div class="dcard__actions">
+    {
+      features.wishlist && (
+        <button
+          type="button"
+          class="dcard__toggle"
+          data-wishlist-toggle={d.id}
+          aria-pressed="false"
+        >
+          <Icon name="heart" size={16} />
+          <span class="sr-only">{d.id} </span>
+          <span data-toggle-text>Save</span>
+        </button>
+      )
+    }
+    {
+      features.compare && (
+        <button
+          type="button"
+          class="dcard__toggle"
+          data-compare-toggle={d.id}
+          aria-pressed="false"
+        >
+          <Icon name="compare" size={16} />
+          <span class="sr-only">{d.id} </span>
+          <span data-toggle-text>Compare</span>
+        </button>
+      )
+    }
+    <span class="dcard__avail">{availabilityLabel(d.availability)}</span>
+  </div>
+</article>
+
+<style>
+  .dcard {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition:
+      border-color var(--duration) var(--ease),
+      box-shadow var(--duration) var(--ease),
+      transform var(--duration) var(--ease);
+  }
+
+  .dcard:hover {
+    border-color: var(--color-line-strong);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+  }
+
+  .dcard__link {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .dcard__link:focus-visible {
+    outline-offset: -3px;
+  }
+
+  .dcard__media {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-6) var(--space-4) var(--space-4);
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgb(255 255 255 / 0.9), transparent 70%),
+      var(--color-white);
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-ink-soft);
+  }
+
+  .dcard__family {
+    font-size: var(--text-2xs);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .dcard__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    flex: 1;
+  }
+
+  .dcard__id {
+    font-size: var(--text-2xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-gold-ink);
+    font-weight: 600;
+  }
+
+  .dcard__title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    line-height: var(--leading-snug);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4em;
+  }
+
+  .dcard__carat {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  .dcard__shape {
+    font-size: 0.78em;
+    color: var(--color-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .dcard__specs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2) var(--space-3);
+    margin-top: var(--space-2);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .dcard__specs div {
+    min-width: 0;
+  }
+
+  .dcard__specs dt {
+    font-size: var(--text-2xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .dcard__specs dd {
+    font-size: var(--text-md);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dcard__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: auto;
+    padding-top: var(--space-4);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-gold-ink);
+    transition: gap var(--duration) var(--ease);
+  }
+
+  .dcard:hover .dcard__cta {
+    gap: var(--space-3);
+  }
+
+  .dcard__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--color-line);
+    background-color: var(--color-white);
+  }
+
+  .dcard__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 34px;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-paper);
+    color: var(--color-muted);
+    font-size: var(--text-2xs);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    transition:
+      color var(--duration) var(--ease),
+      border-color var(--duration) var(--ease),
+      background-color var(--duration) var(--ease);
+  }
+
+  .dcard__toggle:hover {
+    color: var(--color-gold-ink);
+    border-color: var(--color-gold);
+  }
+
+  .dcard__toggle[aria-pressed='true'] {
+    background-color: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-ivory);
+  }
+
+  .dcard__avail {
+    margin-left: auto;
+    font-size: var(--text-2xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dcard:hover {
+      transform: none;
+    }
+  }
+</style>

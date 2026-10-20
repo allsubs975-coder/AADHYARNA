@@ -1,0 +1,161 @@
+﻿---
+/**
+ * "Explore by shape" — the ten featured families as cards, the rest as a
+ * labelled text row. Counts are computed from the live inventory at build.
+ */
+import { home } from '../../config/content';
+import { FEATURED_SHAPE_FAMILIES, SECONDARY_SHAPE_FAMILIES, familyById } from '../../config/shapes';
+import { diamonds } from '../../lib/inventory';
+import { countByKey } from '../../lib/filters';
+import ShapeSilhouette from '../ShapeSilhouette.astro';
+
+const c = home.shapes;
+const counts = countByKey(diamonds, 'shapeFamily');
+
+const featured = FEATURED_SHAPE_FAMILIES.map((id) => {
+  const family = familyById(id);
+  return { family, count: counts.get(id) ?? 0 };
+}).filter((f) => f.count > 0);
+
+const secondary = SECONDARY_SHAPE_FAMILIES.map((id) => ({
+  family: familyById(id),
+  count: counts.get(id) ?? 0,
+})).filter((f) => f.count > 0);
+---
+
+<section class="section shapes" aria-labelledby="shapes-title">
+  <div class="container">
+    <div class="section__head section__head--row">
+      <div class="stack" style="gap:var(--space-3)">
+        <p class="eyebrow">{c.overline}</p>
+        <h2 id="shapes-title">{c.title}</h2>
+        <p class="lede">{c.support}</p>
+      </div>
+      <a class="btn btn--outline btn--sm shapes__all" href={c.allShapesHref}>
+        {c.allShapesLabel}
+      </a>
+    </div>
+
+    <ul class="shapes__grid" role="list">
+      {
+        featured.map(({ family, count }) => (
+          <li>
+            <a class="shape-card" href={`/diamonds/family/${family.id}/`}>
+              <ShapeSilhouette id={family.silhouette} size="md" />
+              <span class="shape-card__label">{family.label}</span>
+              <span class="shape-card__count tabular">
+                {count} {count === 1 ? 'diamond' : 'diamonds'}
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    {
+      secondary.length > 0 && (
+        <p class="shapes__secondary">
+          <span class="shapes__secondary-label">{c.secondaryNote}</span>
+          {secondary.map((s, i) => (
+            <>
+              {i > 0 && <span aria-hidden="true"> · </span>}
+              <a class="text-link" href={`/diamonds/family/${s.family.id}/`}>
+                {s.family.label} ({s.count})
+              </a>
+            </>
+          ))}
+        </p>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .shapes__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+    padding: 0;
+    list-style: none;
+  }
+
+  .shape-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    height: 100%;
+    padding: var(--space-5) var(--space-3);
+    text-align: center;
+    text-decoration: none;
+    color: var(--color-ink-soft);
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    transition:
+      border-color var(--duration) var(--ease),
+      background-color var(--duration) var(--ease),
+      transform var(--duration) var(--ease);
+  }
+
+  .shape-card:hover {
+    border-color: var(--color-gold);
+    background-color: var(--color-white);
+    transform: translateY(-2px);
+  }
+
+  .shape-card :global(svg) {
+    color: var(--color-ink-soft);
+  }
+
+  .shape-card__label {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    line-height: var(--leading-snug);
+    color: var(--color-ink);
+  }
+
+  .shape-card__count {
+    font-size: var(--text-2xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .shapes__secondary {
+    margin-top: clamp(1.5rem, 3vw, 2.25rem);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-line);
+    font-size: var(--text-md);
+    color: var(--color-muted);
+    line-height: 2;
+  }
+
+  .shapes__secondary-label {
+    font-size: var(--text-2xs);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-gold-ink);
+    margin-right: var(--space-2);
+  }
+
+  @media (min-width: 768px) {
+    .shapes__grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .shapes__all {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shape-card:hover {
+      transform: none;
+    }
+  }
+</style>

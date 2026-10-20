@@ -1,0 +1,156 @@
+---
+/**
+ * Privacy policy — DRAFT for the site owner's review (Phase 2 §16).
+ *
+ * Facts the draft is built on: the site is a static build with no accounts,
+ * no cookies, no analytics and no server-side storage; saved/compare lists
+ * live in the visitor's browser (localStorage); enquiries open WhatsApp.
+ * Replace the draft note below with a reviewed version before launch.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs, { type Crumb } from '../../components/Breadcrumbs.astro';
+
+const title = 'Privacy Policy | AADHYARNA';
+const description =
+  'How this site handles your data: no accounts, no cookies, no analytics — saved lists stay in your browser and enquiries are sent through WhatsApp.';
+
+const crumbs: Crumb[] = [{ label: 'Home', href: '/' }, { label: 'Privacy Policy' }];
+---
+
+<BaseLayout title={title} description={description} path="/privacy/">
+  <Breadcrumbs items={crumbs} />
+
+  <section class="section section--tight">
+    <div class="container legal">
+      <p class="eyebrow">Legal</p>
+      <h1>Privacy policy</h1>
+      <p class="lede">
+        The short version: this site has no accounts, no cookies and no analytics. Your
+        saved diamonds stay in your browser, and enquiries are sent through WhatsApp.
+      </p>
+
+      <p class="legal__draft">
+        Draft for review — please read and approve (or amend) this policy before launch.
+      </p>
+
+      <div class="prose legal__body">
+        <section aria-labelledby="who">
+          <h2 id="who">Who we are</h2>
+          <p>
+            AADHYARNA presents a catalogue of lab-grown diamonds. In this policy, “we”
+            means the operator of this website. Contact details are published on the
+            <a href="/contact">contact page</a> once confirmed.
+          </p>
+        </section>
+
+        <section aria-labelledby="collect">
+          <h2 id="collect">What this site collects</h2>
+          <p>
+            The website itself runs as static files served to your browser. It has no user
+            accounts, sets no cookies, runs no analytics or advertising pixels, and stores
+            nothing about you on a server.
+          </p>
+          <ul>
+            <li>
+              <strong>Saved and compared diamonds</strong> are written to your browser's
+              local storage (keys beginning <code>aadhyarna.</code>) so the lists survive
+              page reloads on your device. They are never sent to us.
+            </li>
+            <li>
+              <strong>Normal server logs</strong> may record standard technical data
+              (IP address, browser, time, requested file) temporarily, as handled by
+              whichever host serves this site.
+            </li>
+          </ul>
+        </section>
+
+        <section aria-labelledby="messages">
+          <h2 id="messages">Messages you send us</h2>
+          <p>
+            Enquiry buttons open WhatsApp with a prefilled message describing the diamond
+            you are asking about (stone ID, shape, carat, colour, clarity). That message
+            is delivered through WhatsApp and is subject to WhatsApp's and its parent
+            company's privacy policies, not ours. We use what you send only to answer
+            your enquiry.
+          </p>
+        </section>
+
+        <section aria-labelledby="thirdparties">
+          <h2 id="thirdparties">Third-party links</h2>
+          <p>
+            The site links to <code>wa.me</code> for WhatsApp and may link to grading
+            laboratories or other external pages. Those sites set their own policies; we
+            have no control over how they process data.
+          </p>
+        </section>
+
+        <section aria-labelledby="retention">
+          <h2 id="retention">Retention</h2>
+          <p>
+            Local lists stay on your device until you clear them (clearing site data in
+            your browser removes them completely). Enquiry messages are kept only as long
+            as needed to handle your question, in line with WhatsApp's own retention.
+          </p>
+        </section>
+
+        <section aria-labelledby="rights">
+          <h2 id="rights">Your rights</h2>
+          <p>
+            Because we hold no account data, the usual access, correction and deletion
+            requests usually amount to: clear your browser storage, and ask us to delete
+            any message history you have sent us. Where the law grants further rights
+            (for example under the GDPR), you can exercise them through the contact
+            details on the contact page.
+          </p>
+        </section>
+
+        <section aria-labelledby="changes">
+          <h2 id="changes">Changes to this policy</h2>
+          <p>
+            If the site gains new functionality (accounts, analytics, forms), this policy
+            will be updated before that functionality goes live.
+          </p>
+        </section>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal {
+    max-width: var(--container-narrow);
+  }
+
+  .legal__draft {
+    margin-top: var(--space-5);
+    padding: var(--space-3) var(--space-4);
+    border: 1px dashed var(--color-gold);
+    border-radius: var(--radius-md);
+    background-color: var(--color-paper);
+    font-size: var(--text-sm);
+    color: var(--color-gold-ink);
+  }
+
+  .legal__body {
+    margin-top: var(--space-6);
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .legal__body section > * + * {
+    margin-top: var(--space-3);
+  }
+
+  .legal__body section + section > h2 {
+    margin-top: var(--space-6);
+  }
+
+  .legal__body code {
+    font-family: ui-monospace, 'Cascadia Mono', Menlo, monospace;
+    font-size: 0.9em;
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xs, 4px);
+    padding: 0.1em 0.35em;
+  }
+</style>

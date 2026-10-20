@@ -1,0 +1,106 @@
+---
+/**
+ * 404 page — Astro serves this for any path that has no generated page.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs, { type Crumb } from '../components/Breadcrumbs.astro';
+
+const title = 'Page Not Found | AADHYARNA';
+const description =
+  'The page you asked for does not exist — browse the diamond catalogue, the education guides or start again from the homepage.';
+
+const crumbs: Crumb[] = [{ label: 'Home', href: '/' }, { label: 'Not found' }];
+
+const links = [
+  { label: 'All diamonds', href: '/diamonds', text: 'The full catalogue, filterable by shape, carat, colour and clarity.' },
+  { label: 'Diamond education', href: '/education', text: 'Carat, colour, clarity, proportions, reports and lab-grown basics.' },
+  { label: 'Compare diamonds', href: '/compare', text: 'Place up to four stones side by side.' },
+];
+---
+
+<BaseLayout title={title} description={description} path="/404" noindex>
+  <Breadcrumbs items={crumbs} />
+
+  <section class="section">
+    <div class="container notfound">
+      <p class="eyebrow">Error 404</p>
+      <h1>That page does not exist</h1>
+      <p class="lede">
+        The address may be mistyped, or the page has moved. The links below get you back
+        on track.
+      </p>
+
+      <div class="notfound__links">
+        {
+          links.map((link) => (
+            <a class="notfound__link" href={link.href}>
+              <span class="notfound__link-title">{link.label}</span>
+              <span class="notfound__link-text">{link.text}</span>
+            </a>
+          ))
+        }
+      </div>
+
+      <a class="btn btn--primary notfound__home" href="/">Back to the homepage</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .notfound {
+    max-width: var(--container-narrow);
+  }
+
+  .notfound h1 {
+    margin-block: var(--space-3);
+  }
+
+  .notfound__links {
+    display: grid;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+
+  .notfound__link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: var(--space-4) var(--space-5);
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: inherit;
+    transition:
+      border-color var(--duration) var(--ease),
+      box-shadow var(--duration) var(--ease),
+      transform var(--duration) var(--ease);
+  }
+
+  .notfound__link:hover {
+    border-color: var(--color-gold);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+  }
+
+  .notfound__link-title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--color-ink);
+  }
+
+  .notfound__link-text {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .notfound__home {
+    margin-top: var(--space-6);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .notfound__link:hover {
+      transform: none;
+    }
+  }
+</style>

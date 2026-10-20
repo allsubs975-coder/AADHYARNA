@@ -1,0 +1,149 @@
+---
+/**
+ * The single document shell: head metadata, skip link, silhouette sprite,
+ * header, main slot, footer, floating WhatsApp action and the shared client
+ * behaviour for saved / compared diamonds.
+ *
+ * Page files pass `title`, `description`, `path` (for canonical + Open Graph)
+ * and optional `jsonLd`. `site.url` is intentionally empty until the owner
+ * confirms the production domain — canonical, og:url and og:image are emitted
+ * only once it is set (see src/config/site.ts).
+ */
+import '../styles/tokens.css';
+import '../styles/fonts.css';
+import '../styles/global.css';
+
+import { brand } from '../config/brand';
+import { site, absoluteUrl } from '../config/site';
+import SilhouetteSprite from '../components/SilhouetteSprite.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import WhatsAppButton from '../components/WhatsAppButton.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Site-relative path used for canonical / Open Graph URLs. */
+  path?: string;
+  /** Structured data object (or list) emitted as JSON-LD. */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  /** Keeps staging pages out of search engines. */
+  noindex?: boolean;
+}
+
+const {
+  title = site.defaultTitle,
+  description = site.defaultDescription,
+  path = Astro.url.pathname,
+  jsonLd,
+  noindex = false,
+} = Astro.props;
+
+const canonical = absoluteUrl(path);
+const ogImage = absoluteUrl(brand.logo.og);
+---
+
+<!doctype html>
+<html lang={site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {canonical && <link rel="canonical" href={canonical} />}
+
+    <meta name="theme-color" content={site.themeColor} />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" type="image/webp" href={brand.logo.faviconWebp} />
+    <link rel="icon" type="image/png" href={brand.logo.favicon} />
+    <link rel="apple-touch-icon" href={brand.logo.appleTouchIcon} />
+
+    <link
+      rel="preload"
+      href="/fonts/inter-variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/cormorant-garamond-variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={brand.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content={site.ogLocale} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {ogImage && <meta property="og:image" content={ogImage} />}
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+
+    {
+      jsonLd && (
+        <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+      )
+    }
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <SilhouetteSprite />
+    <Header />
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <Footer />
+    <WhatsAppButton />
+
+    <div class="site-toast" role="status" aria-live="polite" data-toast data-visible="false"></div>
+
+    <script>
+      import '../scripts/actions';
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  .site-toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(var(--wa-size) + var(--space-8));
+    z-index: 120;
+    max-width: min(28rem, calc(100vw - 2rem));
+    padding: 0.7rem 1.1rem;
+    background-color: var(--color-ink);
+    color: var(--color-ivory);
+    border: 1px solid var(--color-line-on-ink);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-md);
+    font-size: var(--text-sm);
+    text-align: center;
+    opacity: 0;
+    transform: translate(-50%, 8px);
+    pointer-events: none;
+    transition:
+      opacity var(--duration) var(--ease),
+      transform var(--duration) var(--ease);
+  }
+
+  .site-toast[data-visible='true'] {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  main {
+    flex: 1;
+  }
+</style>

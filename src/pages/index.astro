@@ -1,0 +1,61 @@
+﻿---
+/**
+ * Homepage. Sections, their copy and their order come from
+ * src/config/content.ts — edit there to reword, reorder or hide a section.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { homeSections, homeSectionToggles } from '../config/content';
+import type { HomeSectionId } from '../config/content';
+import { site, absoluteUrl } from '../config/site';
+import { brand } from '../config/brand';
+
+import Hero from '../components/home/Hero.astro';
+import DiscoveryBar from '../components/home/DiscoveryBar.astro';
+import ShapeExplorer from '../components/home/ShapeExplorer.astro';
+import FeaturedDiamonds from '../components/home/FeaturedDiamonds.astro';
+import BrandIntro from '../components/home/BrandIntro.astro';
+import EducationSection from '../components/home/EducationSection.astro';
+import FinalCta from '../components/home/FinalCta.astro';
+
+const SECTIONS: Record<HomeSectionId, any> = {
+  hero: Hero,
+  discovery: DiscoveryBar,
+  shapes: ShapeExplorer,
+  featured: FeaturedDiamonds,
+  brand: BrandIntro,
+  education: EducationSection,
+  cta: FinalCta,
+};
+
+const visible = homeSections.filter((id) => homeSectionToggles[id]);
+
+/* Structured data is emitted only once the production domain is confirmed. */
+const jsonLd = site.url
+  ? {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'Organization',
+          name: brand.name,
+          url: site.url,
+          logo: absoluteUrl(brand.logo.light),
+          description: site.defaultDescription,
+        },
+        {
+          '@type': 'WebSite',
+          name: brand.name,
+          url: site.url,
+          description: site.defaultDescription,
+          inLanguage: site.lang,
+        },
+      ],
+    }
+  : undefined;
+---
+
+<BaseLayout path="/" jsonLd={jsonLd}>
+  {visible.map((id) => {
+    const Section = SECTIONS[id];
+    return <Section />;
+  })}
+</BaseLayout>

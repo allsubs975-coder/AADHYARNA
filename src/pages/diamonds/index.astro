@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Catalogue from '../../components/Catalogue.astro';
+import { diamonds } from '../../lib/inventory';
+
+const total = diamonds.length;
+
+const title = `Shop Lab-Grown Diamonds — ${total} Stones | AADHYARNA`;
+const description = `Browse all ${total} lab-grown diamonds in the current AADHYARNA inventory: antique and European cuts, Old Miner, portrait, rose and rare fancy shapes, filterable by shape, carat, colour and clarity.`;
+---
+
+<BaseLayout title={title} description={description} path="/diamonds/">
+  <Catalogue
+    h1="Shop Lab-Grown Diamonds"
+    lede={`Every diamond in our working inventory — ${total} records, listed with the specifications as recorded. Filter by shape, carat, colour, clarity, polish, symmetry and report presence.`}
+  />
+</BaseLayout>

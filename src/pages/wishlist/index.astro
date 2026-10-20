@@ -1,0 +1,37 @@
+---
+/**
+ * Saved (wishlist) diamonds — the catalogue restricted to the visitor's saved
+ * list. Everything is stored in this browser (localStorage); there are no
+ * accounts and nothing is sent anywhere.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Catalogue from '../../components/Catalogue.astro';
+import { diamonds } from '../../lib/inventory';
+import { features } from '../../config/features';
+
+const total = diamonds.length;
+
+const title = `Saved Diamonds | AADHYARNA`;
+const description = `Diamonds you save are kept in this browser — compare, filter and enquire from one list of up to ${total} catalogued lab-grown diamonds.`;
+---
+
+<BaseLayout title={title} description={description} path="/wishlist/" noindex>
+  {
+    features.wishlist ? (
+      <Catalogue
+        savedOnly
+        h1="Saved diamonds"
+        lede="Tap Save on any diamond and it stays in this list. Everything is kept in this browser — no account, nothing uploaded. Filter, sort and compare from here exactly as in the catalogue."
+        emptyMessage="Your saved list is empty — open any diamond and tap Save to keep it here."
+        nojsNote="Saved lists are stored in your browser, so this page needs JavaScript. The full catalogue below works without it."
+      />
+    ) : (
+      <section class="section">
+        <div class="container">
+          <h1>Saved diamonds</h1>
+          <p class="lede">Saving diamonds is currently switched off for this site.</p>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

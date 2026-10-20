@@ -1,0 +1,195 @@
+﻿---
+/**
+ * Contact page. The confirmed WhatsApp number is the primary route; email,
+ * phone and address render only when filled in on src/config/brand.ts.
+ * There is no contact form — the site is static and runs no backend.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs, { type Crumb } from '../../components/Breadcrumbs.astro';
+import Icon from '../../components/Icon.astro';
+import { brand, hasContactField } from '../../config/brand';
+import { whatsappAvailable, whatsappUrl, generalEnquiryMessage } from '../../lib/enquiry';
+
+const title = 'Contact AADHYARNA | AADHYARNA';
+const description =
+  'Ask about a specific diamond, a grading report or a video — message AADHYARNA directly on WhatsApp with the Stone ID of the diamond you are considering.';
+
+const crumbs: Crumb[] = [{ label: 'Home', href: '/' }, { label: 'Contact' }];
+
+const includeList = [
+  'The Stone ID of the diamond (for example, HM-21) — it is printed on every card and page.',
+  'What you would like to see: video, photographs, the grading report, or availability.',
+  'How you plan to use it, if you already know — a setting, a cut preference, a deadline.',
+];
+
+const details = [
+  {
+    label: 'Email',
+    value: brand.contact.email,
+    href: hasContactField(brand.contact.email) ? `mailto:${brand.contact.email}` : '',
+  },
+  {
+    label: 'Phone',
+    value: brand.contact.phone,
+    href: hasContactField(brand.contact.phone) ? `tel:${brand.contact.phone.replace(/\s+/g, '')}` : '',
+  },
+  {
+    label: 'Address',
+    value: [brand.contact.addressLine, brand.contact.city, brand.contact.country]
+      .filter((part) => hasContactField(part))
+      .join(', '),
+    href: '',
+  },
+].filter((detail) => detail.value && detail.value.trim() !== '');
+---
+
+<BaseLayout title={title} description={description} path="/contact/">
+  <Breadcrumbs items={crumbs} />
+
+  <section class="section section--tight">
+    <div class="container contact">
+      <div class="contact__main">
+        <p class="eyebrow">Contact</p>
+        <h1>Ask about a diamond</h1>
+        <p class="lede">
+          The fastest route is WhatsApp — send us the Stone ID and what you want to know,
+          and the conversation stays attached to that diamond.
+        </p>
+
+        {
+          whatsappAvailable ? (
+            <div class="contact__wa">
+              <a
+                class="btn btn--whatsapp contact__wa-btn"
+                href={whatsappUrl(generalEnquiryMessage())}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Icon name="whatsapp" size={20} filled />
+                Message us on WhatsApp
+              </a>
+              <p class="contact__wa-number tabular">{brand.contact.whatsappDisplay}</p>
+            </div>
+          ) : (
+            <p class="contact__note">
+              Direct messaging is not configured for this site yet — the confirmed contact
+              channels appear below as soon as they are added.
+            </p>
+          )
+        }
+
+        <div class="prose contact__body">
+          <h2>What to include</h2>
+          <ul>
+            {includeList.map((item) => <li>{item}</li>)}
+          </ul>
+          <p>
+            Report numbers and videos are not published on this site. Ask for the ones
+            belonging to the diamond you are considering and they are sent to you
+            directly, so nothing on the page ever shows the wrong stone's paperwork.
+          </p>
+        </div>
+
+        {
+          details.length > 0 && (
+            <dl class="contact__details">
+              {details.map((detail) => (
+                <div class="contact__detail">
+                  <dt>{detail.label}</dt>
+                  <dd>
+                    {detail.href ? (
+                      <a class="text-link" href={detail.href}>
+                        {detail.value}
+                      </a>
+                    ) : (
+                      detail.value
+                    )}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )
+        }
+
+        <p class="contact__alt">
+          Not sure where to start?
+          <a class="text-link" href="/diamonds">Browse all diamonds</a>
+          or
+          <a class="text-link" href="/education">read the education guides</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact {
+    max-width: var(--container-narrow);
+  }
+
+  .contact__wa {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+  }
+
+  .contact__wa-btn {
+    min-height: 52px;
+    padding-inline: 1.4rem;
+  }
+
+  .contact__wa-number {
+    font-size: var(--text-md);
+    color: var(--color-muted);
+    letter-spacing: 0.04em;
+  }
+
+  .contact__note {
+    margin-top: var(--space-6);
+    padding: var(--space-4);
+    border: 1px dashed var(--color-line-strong);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .contact__body {
+    margin-top: var(--space-6);
+  }
+
+  .contact__details {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .contact__detail dt {
+    font-size: var(--text-xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .contact__detail dd {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-md);
+    color: var(--color-ink);
+  }
+
+  .contact__alt {
+    margin-top: var(--space-6);
+    font-size: var(--text-md);
+    color: var(--color-ink-soft);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em;
+  }
+</style>

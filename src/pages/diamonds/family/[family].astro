@@ -1,0 +1,40 @@
+---
+/**
+ * One indexable landing page per shape family (/diamonds/family/oval/ …).
+ * They give every shape a shareable, crawlable URL and let the catalogue be
+ * browsed without JavaScript.
+ */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Catalogue from '../../../components/Catalogue.astro';
+import { SHAPE_FAMILIES, type ShapeFamily } from '../../../config/shapes';
+import { diamonds } from '../../../lib/inventory';
+
+export function getStaticPaths() {
+  const counts = new Map<string, number>();
+  for (const d of diamonds) counts.set(d.shapeFamily, (counts.get(d.shapeFamily) ?? 0) + 1);
+
+  return SHAPE_FAMILIES.filter((family) => (counts.get(family.id) ?? 0) > 0).map((family) => ({
+    params: { family: family.id },
+    props: { family, count: counts.get(family.id) ?? 0 },
+  }));
+}
+
+interface Props {
+  family: ShapeFamily;
+  count: number;
+}
+
+const { family, count } = Astro.props;
+
+const title = `${family.label} Lab-Grown Diamonds (${count}) | AADHYARNA`;
+const description = `${count} ${family.label} lab-grown ${count === 1 ? 'diamond' : 'diamonds'} currently catalogued by AADHYARNA, each listed with carat, colour, clarity, polish, symmetry and proportion data.`;
+
+const lede =
+  count === 1
+    ? `One ${family.label.toLowerCase()} diamond is currently catalogued, shown with every specification recorded for it.`
+    : `${count} ${family.label} lab-grown diamonds are currently catalogued, each shown with the specifications recorded for it.`;
+---
+
+<BaseLayout title={title} description={description} path={Astro.url.pathname}>
+  <Catalogue familyId={family.id} h1={`${family.label} Lab-Grown Diamonds`} lede={lede} />
+</BaseLayout>

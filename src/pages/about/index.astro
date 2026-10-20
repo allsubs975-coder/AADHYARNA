@@ -1,0 +1,189 @@
+﻿---
+/**
+ * About page. Business details (address, phone, email) only render when the
+ * owner has confirmed them in src/config/brand.ts — nothing is invented here.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs, { type Crumb } from '../../components/Breadcrumbs.astro';
+import { brand, hasContactField } from '../../config/brand';
+import { inventoryMeta } from '../../lib/inventory';
+
+const title = 'About AADHYARNA — Lab-Grown Diamonds, Listed Plainly | AADHYARNA';
+const description =
+  'AADHYARNA presents one working inventory of lab-grown diamonds — antique and European cuts, portrait and step cuts, rose cuts and fancy shapes — with the specifications recorded for every stone.';
+
+const crumbs: Crumb[] = [{ label: 'Home', href: '/' }, { label: 'About' }];
+
+const points = [
+  {
+    title: 'One inventory, complete',
+    text: `Every stone in our catalogue comes from the same working inventory — ${inventoryMeta.recordCount} records at the last import — with weight, colour, clarity, polish, symmetry, measurements and proportions shown as they were recorded.`,
+  },
+  {
+    title: 'Cut for character',
+    text: 'The collection leans towards what makes diamond buying interesting: European and Old Miner cuts, portrait and step cuts, rose cuts and fancy shapes that rarely appear in a standard catalogue.',
+  },
+  {
+    title: 'Compare, then ask',
+    text: 'Place up to four diamonds side by side and read the differences line by line. Every stone carries its own enquiry link, so your question arrives with the right diamond attached.',
+  },
+  {
+    title: 'Private by default',
+    text: 'Grading report numbers and the videos behind each stone are shared directly rather than published across the site — you get them with the stone you are asking about.',
+  },
+];
+
+const contactRows = [
+  { label: 'WhatsApp', value: brand.contact.whatsappDisplay, show: hasContactField(brand.contact.whatsappDisplay) },
+  { label: 'Email', value: brand.contact.email, show: hasContactField(brand.contact.email) },
+  { label: 'Phone', value: brand.contact.phone, show: hasContactField(brand.contact.phone) },
+  {
+    label: 'Address',
+    value: [brand.contact.addressLine, brand.contact.city, brand.contact.country]
+      .filter((part) => hasContactField(part))
+      .join(', '),
+    show: hasContactField(brand.contact.addressLine),
+  },
+].filter((row) => row.show);
+---
+
+<BaseLayout title={title} description={description} path="/about/">
+  <Breadcrumbs items={crumbs} />
+
+  <section class="section section--tight">
+    <div class="container">
+      <p class="eyebrow">About {brand.name}</p>
+      <h1>Lab-grown diamonds, chosen with intent.</h1>
+      <p class="lede">
+        {brand.name} presents lab-grown diamonds through one working inventory — listed
+        plainly, specified completely and open to comparison.
+      </p>
+
+      <div class="prose about__body">
+        <p>
+          Most diamond catalogues are built to be browsed quickly. Ours is built to be
+          read. Every diamond carries the specifications recorded for it, in the same
+          form wherever the stone appears — card, detail page or comparison table — so
+          you can compare like for like and ask a precise question before you decide.
+        </p>
+        <p>
+          The shape of the collection reflects that purpose. Alongside rounds you will
+          find European and Old Miner cuts, portrait and step cuts, rose cuts, baguettes
+          and a broad set of fancy shapes. These are the stones that make a catalogue
+          worth spending time in, and they are usually the ones a standard filter menu
+          forgets.
+        </p>
+        <p>
+          We work from a single source of truth: the inventory itself. When a
+          specification was not recorded, the site says <em>Not recorded</em> rather than
+          filling the gap. When a grading report exists, the stone says so — the report
+          itself is shared privately with you, on request.
+        </p>
+      </div>
+
+      <div class="about__points">
+        {
+          points.map((point) => (
+            <article class="about__point">
+              <h2 class="about__point-title">{point.title}</h2>
+              <p class="about__point-text">{point.text}</p>
+            </article>
+          ))
+        }
+      </div>
+
+      {
+        contactRows.length > 0 && (
+          <div class="about__contact">
+            <h2 class="about__contact-title">Talk to us</h2>
+            <dl class="about__contact-list">
+              {contactRows.map((row) => (
+                <div>
+                  <dt>{row.label}</dt>
+                  <dd>{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+            <a class="btn btn--primary" href="/contact">
+              Contact page
+            </a>
+          </div>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .about__body {
+    margin-top: var(--space-6);
+  }
+
+  .about__points {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+  }
+
+  .about__point {
+    padding: var(--space-5);
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+  }
+
+  .about__point-title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-2);
+  }
+
+  .about__point-text {
+    font-size: var(--text-md);
+    line-height: var(--leading-normal);
+    color: var(--color-ink-soft);
+  }
+
+  .about__contact {
+    margin-top: var(--space-8);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-white);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .about__contact-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+  }
+
+  .about__contact-list {
+    display: grid;
+    gap: var(--space-3);
+    width: 100%;
+  }
+
+  .about__contact-list dt {
+    font-size: var(--text-xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .about__contact-list dd {
+    margin: 0;
+    font-size: var(--text-md);
+    color: var(--color-ink);
+  }
+
+  @media (min-width: 768px) {
+    .about__points {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-5);
+    }
+  }
+</style>

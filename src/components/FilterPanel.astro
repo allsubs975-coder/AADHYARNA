@@ -1,0 +1,442 @@
+﻿---
+/**
+ * Filter controls. Rendered twice — once in the desktop sidebar and once in
+ * the mobile drawer — so every control carries an `idPrefix` to keep ids
+ * unique. Both copies hold identical inputs; the catalogue script keeps them
+ * in sync through the URL state.
+ *
+ * Names match the query parameters parsed by src/lib/filters.ts, so a native
+ * form submission and client-side filtering produce the same result.
+ */
+import { features } from '../config/features';
+import { SHAPE_FAMILIES } from '../config/shapes';
+import { diamonds } from '../lib/inventory';
+import { countByKey, CLARITY_LADDER } from '../lib/filters';
+
+interface Props {
+  idPrefix: string;
+}
+
+const { idPrefix } = Astro.props;
+const uid = (name: string): string => `${idPrefix}-${name}`;
+
+const familyCounts = countByKey(diamonds, 'shapeFamily');
+const families = SHAPE_FAMILIES.map((f) => ({
+  id: f.id,
+  label: f.label,
+  count: familyCounts.get(f.id) ?? 0,
+}))
+  .filter((f) => f.count > 0)
+  .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+
+const colorCounts = countByKey(diamonds, 'color');
+const letterColors = [...colorCounts.entries()]
+  .filter(([value]) => /^[A-Z]$/.test(value))
+  .map(([value, count]) => ({ value, count }))
+  .sort((a, b) => a.value.localeCompare(b.value));
+const fancyCount = diamonds.filter((d) => d.colorType === 'fancy').length;
+
+const clarityCounts = countByKey(diamonds, 'clarity');
+const clarities = CLARITY_LADDER.map((g) => ({ value: g, count: clarityCounts.get(g) ?? 0 })).filter(
+  (c) => c.count > 0,
+);
+
+const build = (key: 'polish' | 'symmetry' | 'fluorescence' | 'availability') =>
+  [...countByKey(diamonds, key).entries()]
+    .map(([value, count]) => ({ value, count }))
+    .sort((a, b) => b.count - a.count || a.value.localeCompare(b.value));
+
+const polishes = build('polish');
+const symmetries = build('symmetry');
+const fluorescent = build('fluorescence');
+const availability = build('availability').filter((a) => a.value.toUpperCase() === 'YES');
+
+const weights = diamonds.map((d) => d.weight);
+const caratMin = Math.floor(Math.min(...weights) * 100) / 100;
+const caratMax = Math.ceil(Math.max(...weights) * 100) / 100;
+
+const withDepth = diamonds.filter((d) => d.depth !== null).map((d) => d.depth as number);
+const withTable = diamonds.filter((d) => d.table !== null).map((d) => d.table as number);
+const depthBounds = { min: Math.floor(Math.min(...withDepth)), max: Math.ceil(Math.max(...withDepth)) };
+const tableBounds = { min: Math.floor(Math.min(...withTable)), max: Math.ceil(Math.max(...withTable)) };
+---
+
+<div class="fpanel">
+  <fieldset class="fgroup">
+    <legend class="fgroup__legend">Shape</legend>
+    <div class="fgroup__list fgroup__list--scroll">
+      {
+        families.map((f) => (
+          <label class="choice" for={uid(`fam-${f.id}`)}>
+            <input type="checkbox" id={uid(`fam-${f.id}`)} name="family" value={f.id} data-filter-input />
+            <span>{f.label}</span>
+            <span class="choice__count">{f.count}</span>
+          </label>
+        ))
+      }
+    </div>
+  </fieldset>
+
+  <fieldset class="fgroup">
+    <legend class="fgroup__legend">Carat weight</legend>
+    <div class="fgroup__range">
+      <label class="field" for={uid('caratMin')}>
+        <span class="field__label">From</span>
+        <input
+          class="input tabular"
+          type="number"
+          id={uid('caratMin')}
+          name="caratMin"
+          min={caratMin}
+          max={caratMax}
+          step="0.01"
+          inputmode="decimal"
+          placeholder={caratMin.toFixed(2)}
+          data-filter-input
+        />
+      </label>
+      <label class="field" for={uid('caratMax')}>
+        <span class="field__label">To</span>
+        <input
+          class="input tabular"
+          type="number"
+          id={uid('caratMax')}
+          name="caratMax"
+          min={caratMin}
+          max={caratMax}
+          step="0.01"
+          inputmode="decimal"
+          placeholder={caratMax.toFixed(2)}
+          data-filter-input
+        />
+      </label>
+    </div>
+  </fieldset>
+
+  <fieldset class="fgroup">
+    <legend class="fgroup__legend">Colour</legend>
+    <div class="fgroup__list fgroup__list--scroll">
+      {
+        letterColors.map((c) => (
+          <label class="choice" for={uid(`color-${c.value}`)}>
+            <input
+              type="checkbox"
+              id={uid(`color-${c.value}`)}
+              name="color"
+              value={c.value}
+              data-filter-input
+            />
+            <span>{c.value}</span>
+            <span class="choice__count">{c.count}</span>
+          </label>
+        ))
+      }
+      {
+        fancyCount > 0 && (
+          <label class="choice" for={uid('color-fancy')}>
+            <input
+              type="checkbox"
+              id={uid('color-fancy')}
+              name="color"
+              value="fancy"
+              data-filter-input
+            />
+            <span>Fancy colours</span>
+            <span class="choice__count">{fancyCount}</span>
+          </label>
+        )
+      }
+    </div>
+  </fieldset>
+
+  <fieldset class="fgroup">
+    <legend class="fgroup__legend">Clarity</legend>
+    <div class="fgroup__list">
+      {
+        clarities.map((c) => (
+          <label class="choice" for={uid(`clarity-${c.value}`)}>
+            <input
+              type="checkbox"
+              id={uid(`clarity-${c.value}`)}
+              name="clarity"
+              value={c.value}
+              data-filter-input
+            />
+            <span>{c.value}</span>
+            <span class="choice__count">{c.count}</span>
+          </label>
+        ))
+      }
+    </div>
+  </fieldset>
+
+  {
+    polishes.length > 1 && (
+      <fieldset class="fgroup">
+        <legend class="fgroup__legend">Polish</legend>
+        <div class="fgroup__list">
+          {polishes.map((p) => (
+            <label class="choice" for={uid(`polish-${p.value}`)}>
+              <input
+                type="checkbox"
+                id={uid(`polish-${p.value}`)}
+                name="polish"
+                value={p.value}
+                data-filter-input
+              />
+              <span>{p.value}</span>
+              <span class="choice__count">{p.count}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    )
+  }
+
+  {
+    symmetries.length > 1 && (
+      <fieldset class="fgroup">
+        <legend class="fgroup__legend">Symmetry</legend>
+        <div class="fgroup__list">
+          {symmetries.map((s) => (
+            <label class="choice" for={uid(`sym-${s.value}`)}>
+              <input
+                type="checkbox"
+                id={uid(`sym-${s.value}`)}
+                name="sym"
+                value={s.value}
+                data-filter-input
+              />
+              <span>{s.value}</span>
+              <span class="choice__count">{s.count}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    )
+  }
+
+  {
+    fluorescent.length > 1 && (
+      <fieldset class="fgroup">
+        <legend class="fgroup__legend">Fluorescence</legend>
+        <div class="fgroup__list">
+          {fluorescent.map((f) => (
+            <label class="choice" for={uid(`fl-${f.value}`)}>
+              <input
+                type="checkbox"
+                id={uid(`fl-${f.value}`)}
+                name="fl"
+                value={f.value}
+                data-filter-input
+              />
+              <span>{f.value}</span>
+              <span class="choice__count">{f.count}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    )
+  }
+
+  {
+    features.reportFilter && (
+      <fieldset class="fgroup">
+        <legend class="fgroup__legend">Grading report</legend>
+        <div class="fgroup__list">
+          <label class="choice" for={uid('report-any')}>
+            <input
+              type="radio"
+              id={uid('report-any')}
+              name="report"
+              value="any"
+              checked
+              data-filter-input
+            />
+            <span>Any</span>
+          </label>
+          <label class="choice" for={uid('report-yes')}>
+            <input
+              type="radio"
+              id={uid('report-yes')}
+              name="report"
+              value="yes"
+              data-filter-input
+            />
+            <span>Report recorded</span>
+            <span class="choice__count">{diamonds.filter((d) => d.hasReport).length}</span>
+          </label>
+          <label class="choice" for={uid('report-no')}>
+            <input
+              type="radio"
+              id={uid('report-no')}
+              name="report"
+              value="no"
+              data-filter-input
+            />
+            <span>No report recorded</span>
+            <span class="choice__count">{diamonds.filter((d) => !d.hasReport).length}</span>
+          </label>
+        </div>
+      </fieldset>
+    )
+  }
+
+  {
+    features.dimensionsFilters && (
+      <>
+        <fieldset class="fgroup">
+          <legend class="fgroup__legend">Depth %</legend>
+          <div class="fgroup__range">
+            <label class="field" for={uid('depthMin')}>
+              <span class="field__label">From</span>
+              <input
+                class="input tabular"
+                type="number"
+                id={uid('depthMin')}
+                name="depthMin"
+                min={depthBounds.min}
+                max={depthBounds.max}
+                step="1"
+                inputmode="numeric"
+                placeholder={String(depthBounds.min)}
+                data-filter-input
+              />
+            </label>
+            <label class="field" for={uid('depthMax')}>
+              <span class="field__label">To</span>
+              <input
+                class="input tabular"
+                type="number"
+                id={uid('depthMax')}
+                name="depthMax"
+                min={depthBounds.min}
+                max={depthBounds.max}
+                step="1"
+                inputmode="numeric"
+                placeholder={String(depthBounds.max)}
+                data-filter-input
+              />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="fgroup">
+          <legend class="fgroup__legend">Table %</legend>
+          <div class="fgroup__range">
+            <label class="field" for={uid('tableMin')}>
+              <span class="field__label">From</span>
+              <input
+                class="input tabular"
+                type="number"
+                id={uid('tableMin')}
+                name="tableMin"
+                min={tableBounds.min}
+                max={tableBounds.max}
+                step="1"
+                inputmode="numeric"
+                placeholder={String(tableBounds.min)}
+                data-filter-input
+              />
+            </label>
+            <label class="field" for={uid('tableMax')}>
+              <span class="field__label">To</span>
+              <input
+                class="input tabular"
+                type="number"
+                id={uid('tableMax')}
+                name="tableMax"
+                min={tableBounds.min}
+                max={tableBounds.max}
+                step="1"
+                inputmode="numeric"
+                placeholder={String(tableBounds.max)}
+                data-filter-input
+              />
+            </label>
+          </div>
+        </fieldset>
+      </>
+    )
+  }
+
+  {
+    availability.length > 0 && (
+      <fieldset class="fgroup">
+        <legend class="fgroup__legend">Availability</legend>
+        <div class="fgroup__list">
+          {availability.map((a) => (
+            <label class="choice" for={uid(`avail-${a.value}`)}>
+              <input
+                type="checkbox"
+                id={uid(`avail-${a.value}`)}
+                name="availability"
+                value={a.value}
+                data-filter-input
+              />
+              <span>Available</span>
+              <span class="choice__count">{a.count}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    )
+  }
+
+  <button class="btn btn--primary btn--sm btn--block fpanel__apply" type="submit">
+    Apply filters
+  </button>
+</div>
+
+<style>
+  .fpanel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .fgroup {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+  }
+
+  .fgroup__legend {
+    padding: 0;
+    margin-bottom: var(--space-3);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .fgroup__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .fgroup__list--scroll {
+    max-height: 13.5rem;
+    overflow-y: auto;
+    padding-right: var(--space-2);
+    scrollbar-width: thin;
+  }
+
+  .fgroup__range {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+
+  .fgroup__range .input {
+    min-height: 42px;
+    padding-block: 0.45rem;
+  }
+
+  .fpanel__apply {
+    margin-top: var(--space-2);
+  }
+</style>

@@ -1,0 +1,166 @@
+---
+/**
+ * Terms of use — DRAFT for the site owner's review (Phase 2 §16).
+ *
+ * Written for a static catalogue that publishes no prices and concludes no
+ * sales on the site itself: enquiries happen on WhatsApp, and the drafting
+ * party, jurisdiction and business details are confirmed before launch.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs, { type Crumb } from '../../components/Breadcrumbs.astro';
+
+const title = 'Terms of Use | AADHYARNA';
+const description =
+  'The terms on which this catalogue is provided: specifications are shown as recorded, enquiries are handled directly, and nothing on this site constitutes a concluded sale.';
+
+const crumbs: Crumb[] = [{ label: 'Home', href: '/' }, { label: 'Terms of Use' }];
+---
+
+<BaseLayout title={title} description={description} path="/terms/">
+  <Breadcrumbs items={crumbs} />
+
+  <section class="section section--tight">
+    <div class="container legal">
+      <p class="eyebrow">Legal</p>
+      <h1>Terms of use</h1>
+      <p class="lede">
+        These terms describe how this catalogue may be used, and what you should and
+        should not expect from the information published here.
+      </p>
+
+      <p class="legal__draft">
+        Draft for review — the contracting entity, jurisdiction and final wording must be
+        confirmed by the site owner before launch.
+      </p>
+
+      <div class="prose legal__body">
+        <section aria-labelledby="scope">
+          <h2 id="scope">Scope</h2>
+          <p>
+            This website is a catalogue of lab-grown diamonds operated by AADHYARNA. By
+            using it you agree to these terms. If you do not agree, please stop using the
+            site.
+          </p>
+        </section>
+
+        <section aria-labelledby="catalogue">
+          <h2 id="catalogue">The catalogue</h2>
+          <p>
+            Every diamond shown here is listed from our working inventory with the
+            specifications recorded for it — weight, colour, clarity, polish, symmetry,
+            measurements and, where measured, depth and table. Where a specification was
+            not recorded, the page says so instead of estimating.
+          </p>
+          <ul>
+            <li>
+              The catalogue is informative: it does not itself constitute an offer capable
+              of acceptance, and no sale is concluded on this site.
+            </li>
+            <li>
+              Availability can change between imports. The availability label reflects the
+              last import of the inventory.
+            </li>
+            <li>
+              Grading report numbers and media (video, photographs) are shared privately
+              on request and are not published on the site.
+            </li>
+          </ul>
+        </section>
+
+        <section aria-labelledby="enquiries">
+          <h2 id="enquiries">Enquiries and purchases</h2>
+          <p>
+            Enquiry buttons open WhatsApp with a prefilled description of the diamond.
+            Anything commercial — price, payment, shipping, returns, warranties — is
+            agreed directly between you and AADHYARNA in that conversation, under the
+            terms given to you at that time. Nothing on this site replaces that
+            agreement.
+          </p>
+        </section>
+
+        <section aria-labelledby="use">
+          <h2 id="use">Acceptable use</h2>
+          <ul>
+            <li>Browse, compare and share links to the catalogue for personal or professional sourcing purposes.</li>
+            <li>
+              Do not attempt to disrupt the site, scrape it at scale, or reuse its
+              content — text, brand marks and the drawn diamond silhouettes — without
+              permission.
+            </li>
+            <li>
+              Do not present our catalogue or its specifications as your own, or remove
+              the origin information from shared links.
+            </li>
+          </ul>
+        </section>
+
+        <section aria-labelledby="accuracy">
+          <h2 id="accuracy">Information and liability</h2>
+          <p>
+            We take care to publish inventory data accurately, but the site is provided
+            “as is”. To the extent the law allows, we accept no liability for decisions
+            made solely on the basis of this catalogue, for interrupted access, or for
+            content on external sites we link to. Your statutory rights are not affected.
+          </p>
+        </section>
+
+        <section aria-labelledby="ip">
+          <h2 id="ip">Intellectual property</h2>
+          <p>
+            The AADHYARNA name, monogram, website design, written copy and the drawn
+            diamond silhouettes are owned by or licensed to the site operator. Inventory
+            specifications describe real stones and are facts; the presentation of them
+            on this site is our work.
+          </p>
+        </section>
+
+        <section aria-labelledby="law">
+          <h2 id="law">Governing law</h2>
+          <p>
+            These terms are governed by the law of the jurisdiction in which the operator
+            is established — to be confirmed and inserted here before launch, together
+            with the business's legal name and address.
+          </p>
+        </section>
+
+        <section aria-labelledby="contact-terms">
+          <h2 id="contact-terms">Contact</h2>
+          <p>
+            Questions about these terms can be sent through the
+            <a href="/contact">contact page</a>.
+          </p>
+        </section>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal {
+    max-width: var(--container-narrow);
+  }
+
+  .legal__draft {
+    margin-top: var(--space-5);
+    padding: var(--space-3) var(--space-4);
+    border: 1px dashed var(--color-gold);
+    border-radius: var(--radius-md);
+    background-color: var(--color-paper);
+    font-size: var(--text-sm);
+    color: var(--color-gold-ink);
+  }
+
+  .legal__body {
+    margin-top: var(--space-6);
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .legal__body section > * + * {
+    margin-top: var(--space-3);
+  }
+
+  .legal__body section + section > h2 {
+    margin-top: var(--space-6);
+  }
+</style>

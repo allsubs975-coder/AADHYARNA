@@ -1,0 +1,369 @@
+﻿---
+/**
+ * Catalogue body shared by /diamonds and /diamonds/family/<id>.
+ *
+ * Everything is server-rendered in inventory order; the catalogue script then
+ * applies the filters, sort and search from the URL. Without JavaScript the
+ * visitor still sees every diamond, and the controls hide themselves instead
+ * of pretending to work.
+ */
+import DiamondCard from './DiamondCard.astro';
+import FilterPanel from './FilterPanel.astro';
+import Icon from './Icon.astro';
+import { diamonds } from '../lib/inventory';
+import { SORT_OPTIONS } from '../lib/filters';
+import { familyLabel } from '../config/shapes';
+
+interface Props {
+  /** Shape family fixed by the URL path (/diamonds/family/<id>). */
+  familyId?: string;
+  h1: string;
+  lede: string;
+  /** Restricts the list to diamonds the visitor saved (the /wishlist page). */
+  savedOnly?: boolean;
+  /** Copy for the empty state when nothing is saved yet. */
+  emptyMessage?: string;
+  /** Note shown instead of the controls when JavaScript is unavailable. */
+  nojsNote?: string;
+}
+
+const {
+  familyId = '',
+  h1,
+  lede,
+  savedOnly = false,
+  emptyMessage = '',
+  nojsNote = '',
+} = Astro.props;
+
+const list = familyId ? diamonds.filter((d) => d.shapeFamily === familyId) : diamonds;
+const total = diamonds.length;
+const familyTitle = familyId ? familyLabel(familyId) : '';
+---
+
+<section class="section section--tight catalogue-head">
+  <div class="container">
+    <p class="eyebrow">Diamond catalogue</p>
+    <h1>{h1}</h1>
+    <p class="lede">{lede}</p>
+    {
+      familyId && (
+        <p class="catalogue-head__all">
+          <a class="text-link" href="/diamonds">
+            View all {total} diamonds
+          </a>
+        </p>
+      )
+    }
+    {
+      savedOnly && (
+        <p class="catalogue-head__all">
+          <a class="text-link" href="/diamonds">
+            Browse all {total} diamonds
+          </a>
+        </p>
+      )
+    }
+  </div>
+</section>
+
+<section class="section catalogue" aria-label={familyTitle ? `${familyTitle} diamonds` : 'All diamonds'}>
+  <div class="container">
+    <form
+      class="catalogue__form"
+      action="/diamonds"
+      method="get"
+      id="catalogue-filters"
+      data-filter-form
+      data-path-family={familyId}
+      data-total-all={diamonds.length}
+      data-saved-only={savedOnly ? 'true' : undefined}
+    >
+      <div class="catalogue__layout">
+        <aside class="catalogue__side" data-js-only aria-label="Filter diamonds">
+          <div class="catalogue__side-head">
+            <h2 class="catalogue__side-title">Filters</h2>
+            <button class="btn btn--ghost btn--sm" type="button" data-clear>Clear all</button>
+          </div>
+          <FilterPanel idPrefix="side" />
+        </aside>
+
+        <div class="catalogue__main">
+          <div class="catalogue__toolbar">
+            <p class="catalogue__count" role="status" aria-live="polite" data-result-count>
+              Showing {list.length} of {total} diamonds
+            </p>
+
+            <div class="catalogue__tools" data-js-only>
+              <label class="sr-only" for="cat-q">Search by Stone ID</label>
+              <input
+                class="input catalogue__search"
+                type="search"
+                id="cat-q"
+                name="q"
+                placeholder="Search Stone ID"
+                autocomplete="off"
+                data-filter-input
+              />
+
+              <label class="sr-only" for="cat-sort">Sort diamonds</label>
+              <select class="select catalogue__sort" id="cat-sort" name="sort" data-filter-input>
+                {SORT_OPTIONS.map((o) => <option value={o.id}>{o.label}</option>)}
+              </select>
+
+              <button class="btn btn--outline btn--sm catalogue__open" type="button" data-filters-open>
+                Filters
+                <span class="catalogue__badge" data-filter-badge hidden>0</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="chip-row catalogue__chips" data-chips data-js-only></div>
+
+          <p class="catalogue__nojs" data-nojs>
+            {nojsNote || `Filtering and sorting need JavaScript — all ${list.length} ${
+              list.length === 1 ? 'diamond is' : 'diamonds are'
+            } listed below in inventory order.`}
+          </p>
+
+          <div class="catalogue__grid" data-grid data-js-only={savedOnly ? true : undefined}>
+            {
+              list.map((d) => <DiamondCard diamond={d} filterable />)
+            }
+          </div>
+
+          <div class="empty-state catalogue__empty" data-empty-state hidden>
+            <h3 data-empty-title>No diamonds match these filters</h3>
+            {savedOnly && emptyMessage ? (
+              <p>{emptyMessage}</p>
+            ) : (
+              <p>Try a wider carat range, or clear one of the filters above.</p>
+            )}
+            <button class="btn btn--outline btn--sm" type="button" data-clear>
+              Clear all filters
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <dialog class="dialog filters-drawer" data-filters-dialog aria-label="Filter diamonds">
+      <div class="dialog__head">
+        <h2 class="filters-drawer__title">Filters</h2>
+        <button class="icon-btn" type="button" data-filters-close aria-label="Close filters">
+          <Icon name="close" size={20} />
+        </button>
+      </div>
+      <div class="dialog__body">
+        <form action="/diamonds" method="get" data-drawer-form>
+          <FilterPanel idPrefix="drawer" />
+        </form>
+      </div>
+    </dialog>
+  </div>
+</section>
+
+<style>
+  .catalogue-head {
+    padding-bottom: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  .catalogue-head h1 {
+    margin-block: var(--space-3);
+  }
+
+  .catalogue-head__all {
+    margin-top: var(--space-3);
+    font-size: var(--text-md);
+  }
+
+  .catalogue {
+    padding-top: 0;
+  }
+
+  .catalogue__layout {
+    display: grid;
+    gap: clamp(var(--space-6), 3vw, var(--space-8));
+  }
+
+  .catalogue__side {
+    min-width: 0;
+  }
+
+  .catalogue__side-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-bottom: var(--space-4);
+    margin-bottom: var(--space-5);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .catalogue__side-title {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-ink);
+  }
+
+  .catalogue__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .catalogue__count {
+    font-size: var(--text-md);
+    color: var(--color-ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .catalogue__tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    flex: 1 1 20rem;
+    justify-content: flex-end;
+  }
+
+  .catalogue__search {
+    min-height: 42px;
+    min-width: min(100%, 12rem);
+    flex: 1 1 10rem;
+  }
+
+  .catalogue__sort {
+    min-height: 42px;
+    flex: 0 1 14rem;
+  }
+
+  .catalogue__open {
+    display: none;
+  }
+
+  .catalogue__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.4em;
+    height: 1.4em;
+    padding-inline: 0.3em;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-ink);
+    color: var(--color-ivory);
+    font-size: var(--text-2xs);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .catalogue__chips:not(:empty) {
+    margin-top: var(--space-4);
+  }
+
+  .catalogue__nojs {
+    margin-top: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--color-paper);
+    border: 1px dashed var(--color-line-strong);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .catalogue__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+  }
+
+  .catalogue__grid :global(.dcard[hidden]) {
+    display: none;
+  }
+
+  .catalogue__empty {
+    margin-top: var(--space-6);
+  }
+
+  .filters-drawer__title {
+    font-family: var(--font-sans);
+    font-size: var(--text-md);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  /* ---------------------------------------------------------- responsive */
+  @media (max-width: 1023px) {
+    .catalogue__open {
+      display: inline-flex;
+    }
+
+    .catalogue__grid {
+      gap: var(--space-3);
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .catalogue__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .catalogue__layout {
+      grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .catalogue__side {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-5));
+      padding: var(--space-5);
+      background-color: var(--color-paper);
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-lg);
+      max-height: calc(100dvh - var(--header-height) - var(--space-12));
+      overflow-y: auto;
+    }
+
+    .catalogue__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+  }
+
+  @media (min-width: 1360px) {
+    .catalogue__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-5);
+    }
+  }
+
+  .filters-drawer {
+    width: min(440px, 100vw);
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0 0 0 auto;
+    border-radius: 0;
+    border-block: 0;
+    border-right: 0;
+  }
+
+  .filters-drawer .dialog__body {
+    max-height: calc(100dvh - 74px);
+    padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+  }
+</style>
+
+<script>
+  import '../scripts/catalogue';
+</script>

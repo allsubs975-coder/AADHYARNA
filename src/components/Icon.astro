@@ -1,0 +1,35 @@
+---
+import { ICONS, type IconName } from '../lib/icons';
+
+interface Props {
+  name: IconName;
+  size?: number;
+  class?: string;
+  /** Solid glyphs (whatsapp, selected heart) instead of an outline. */
+  filled?: boolean;
+}
+
+const { name, size = 20, class: className = '', filled = false } = Astro.props;
+---
+
+<svg
+  class:list={['icon', className]}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill={filled ? 'currentColor' : 'none'}
+  stroke={filled ? 'none' : 'currentColor'}
+  stroke-width={filled ? undefined : 1.75}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  set:html={ICONS[name]}
+/>
+
+<style>
+  .icon {
+    flex: none;
+    display: block;
+  }
+</style>

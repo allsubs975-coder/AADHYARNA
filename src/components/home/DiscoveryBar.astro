@@ -1,0 +1,151 @@
+---
+/**
+ * Discovery controls. A plain GET form to /diamonds, so the search works
+ * without JavaScript; the catalogue's own script takes over once it loads.
+ */
+import { home } from '../../config/content';
+import { SHAPE_FAMILIES } from '../../config/shapes';
+import { diamonds } from '../../lib/inventory';
+import { countByKey, CLARITY_LADDER } from '../../lib/filters';
+
+const c = home.discovery;
+
+const familyCounts = countByKey(diamonds, 'shapeFamily');
+const colorCounts = countByKey(diamonds, 'color');
+
+const familyOptions = SHAPE_FAMILIES.filter((f) => (familyCounts.get(f.id) ?? 0) > 0).map(
+  (f) => ({ id: f.id, label: f.label, count: familyCounts.get(f.id) ?? 0 }),
+);
+
+const letterColors = [...colorCounts.entries()]
+  .filter(([value]) => /^[A-Z]$/.test(value))
+  .map(([value]) => value)
+  .sort((a, b) => a.localeCompare(b));
+const fancyCount = diamonds.filter((d) => d.colorType === 'fancy').length;
+
+const clarityCounts = countByKey(diamonds, 'clarity');
+const clarityOptions = CLARITY_LADDER.map((g) => ({ grade: g, count: clarityCounts.get(g) ?? 0 })).filter(
+  (o) => o.count > 0,
+);
+---
+
+<section class="section section--paper discovery" aria-labelledby="discovery-title">
+  <div class="container">
+    <div class="section__head section__head--center">
+      <p class="eyebrow">{c.overline}</p>
+      <h2 id="discovery-title">{c.title}</h2>
+      <p class="lede">{c.support}</p>
+    </div>
+
+    <form class="discovery__form" action="/diamonds" method="get">
+      <div class="field">
+        <label class="field__label" for="disc-family">Shape</label>
+        <select class="select" id="disc-family" name="family">
+          <option value="">Any shape</option>
+          {
+            familyOptions.map((f) => (
+              <option value={f.id}>
+                {f.label} ({f.count})
+              </option>
+            ))
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="disc-carat-min">Carat from</label>
+        <input
+          class="input tabular"
+          id="disc-carat-min"
+          name="caratMin"
+          type="number"
+          min="0"
+          step="0.01"
+          inputmode="decimal"
+          placeholder="0.00"
+        />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="disc-carat-max">Carat to</label>
+        <input
+          class="input tabular"
+          id="disc-carat-max"
+          name="caratMax"
+          type="number"
+          min="0"
+          step="0.01"
+          inputmode="decimal"
+          placeholder="99.99"
+        />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="disc-color">Colour</label>
+        <select class="select" id="disc-color" name="color">
+          <option value="">Any colour</option>
+          {
+            letterColors.map((g) => (
+              <option value={g}>
+                {g} ({colorCounts.get(g)})
+              </option>
+            ))
+          }
+          <option value="fancy">Fancy colours ({fancyCount})</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="disc-clarity">Clarity</label>
+        <select class="select" id="disc-clarity" name="clarity">
+          <option value="">Any clarity</option>
+          {
+            clarityOptions.map((o) => (
+              <option value={o.grade}>
+                {o.grade} ({o.count})
+              </option>
+            ))
+          }
+        </select>
+      </div>
+
+      <button class="btn btn--primary discovery__submit" type="submit">
+        {c.ctaLabel}
+      </button>
+    </form>
+  </div>
+</section>
+
+<style>
+  .discovery__form {
+    display: grid;
+    gap: var(--space-4);
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .discovery__submit {
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .discovery__form {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: end;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .discovery__form {
+      grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+    }
+
+    .discovery__submit {
+      width: auto;
+      min-width: 13rem;
+    }
+  }
+</style>

@@ -1,0 +1,82 @@
+---
+/**
+ * Floating WhatsApp action. Renders nothing when the feature is switched off
+ * or no confirmed number exists (src/config/brand.ts).
+ */
+import { whatsappAvailable, whatsappUrl, generalEnquiryMessage } from '../lib/enquiry';
+import Icon from './Icon.astro';
+---
+
+{
+  whatsappAvailable && (
+    <a
+      class="wa-fab"
+      href={whatsappUrl(generalEnquiryMessage())}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <Icon name="whatsapp" size={26} filled />
+      <span class="wa-fab__label">WhatsApp</span>
+    </a>
+  )
+}
+
+<style>
+  .wa-fab {
+    position: fixed;
+    right: max(var(--space-4), env(safe-area-inset-right, 0px));
+    bottom: max(var(--space-4), env(safe-area-inset-bottom, 0px));
+    z-index: 80;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: var(--wa-size);
+    height: var(--wa-size);
+    padding: 0;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-whatsapp);
+    color: var(--color-white);
+    text-decoration: none;
+    box-shadow: var(--shadow-md);
+    transition:
+      transform var(--duration) var(--ease),
+      filter var(--duration) var(--ease);
+  }
+
+  .wa-fab:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.07);
+  }
+
+  .wa-fab__label {
+    /* Visually hidden but still the link's accessible name on phones, where
+       only the glyph is shown. */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+
+  @media (min-width: 768px) {
+    .wa-fab {
+      width: auto;
+      gap: var(--space-2);
+      padding-inline: 0.85rem 1.15rem;
+      justify-content: flex-start;
+    }
+
+    .wa-fab__label {
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip-path: none;
+      font-size: var(--text-sm);
+    }
+  }
+</style>

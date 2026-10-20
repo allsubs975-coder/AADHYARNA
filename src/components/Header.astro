@@ -1,0 +1,335 @@
+---
+/**
+ * Site header: brand lockup, primary navigation, quick actions and the
+ * mobile menu (a real <dialog>, so focus trapping and Escape come from the
+ * platform). Sticky on every page.
+ */
+import { primaryNav } from '../config/site';
+import { features } from '../config/features';
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+
+const path = Astro.url.pathname;
+const isCurrent = (href: string): boolean =>
+  href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`);
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="site-header__brand" href="/" aria-label="AADHYARNA — home">
+      <Logo size="sm" />
+    </a>
+
+    <nav class="site-header__nav" aria-label="Primary">
+      <ul class="site-header__list" role="list">
+        {
+          primaryNav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      {
+        features.search && (
+          <a class="icon-btn" href="/diamonds#search" aria-label="Search diamonds" title="Search">
+            <Icon name="search" size={19} />
+          </a>
+        )
+      }
+      {
+        features.compare && (
+          <a
+            class="icon-btn"
+            href="/compare"
+            aria-label="Compare diamonds"
+            title="Compare diamonds"
+          >
+            <Icon name="compare" size={19} />
+            <span class="icon-btn__count" data-compare-count data-empty="true">0</span>
+          </a>
+        )
+      }
+      {
+        features.wishlist && (
+          <a class="icon-btn" href="/wishlist" aria-label="Saved diamonds" title="Saved diamonds">
+            <Icon name="heart" size={19} />
+            <span class="icon-btn__count" data-wishlist-count data-empty="true">0</span>
+          </a>
+        )
+      }
+      <button
+        class="icon-btn site-header__menu"
+        type="button"
+        data-nav-open
+        aria-haspopup="dialog"
+        aria-label="Open menu"
+      >
+        <Icon name="menu" size={22} />
+      </button>
+    </div>
+  </div>
+
+  <dialog class="nav-dialog" data-nav-dialog aria-label="Site menu">
+    <div class="nav-dialog__head">
+      <Logo size="sm" />
+      <button class="icon-btn" type="button" data-nav-close aria-label="Close menu">
+        <Icon name="close" size={22} />
+      </button>
+    </div>
+
+    <nav class="nav-dialog__nav" aria-label="Primary">
+      <ul role="list">
+        {
+          primaryNav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                <span>{item.label}</span>
+                <Icon name="chevronRight" size={18} />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="nav-dialog__foot">
+      {
+        features.compare && (
+          <a class="btn btn--outline btn--sm" href="/compare">
+            Compare
+          </a>
+        )
+      }
+      {
+        features.wishlist && (
+          <a class="btn btn--outline btn--sm" href="/wishlist">
+            Saved
+          </a>
+        )
+      }
+      <a class="btn btn--primary btn--sm" href="/diamonds">
+        All diamonds
+      </a>
+    </div>
+  </dialog>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    background-color: rgb(244 239 230 / 0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-height: var(--header-height);
+  }
+
+  .site-header__brand {
+    text-decoration: none;
+    margin-right: auto;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .site-header__nav {
+    display: none;
+  }
+
+  .site-header__list {
+    display: flex;
+    align-items: center;
+    gap: clamp(var(--space-4), 2vw, var(--space-8));
+  }
+
+  .site-header__list a {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--color-ink-soft);
+    padding-block: var(--space-2);
+    border-bottom: 1px solid transparent;
+    transition:
+      color var(--duration) var(--ease),
+      border-color var(--duration) var(--ease);
+  }
+
+  .site-header__list a:hover {
+    color: var(--color-gold-ink);
+  }
+
+  .site-header__list a[aria-current='page'] {
+    color: var(--color-ink);
+    border-bottom-color: var(--color-gold);
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .site-header__actions .icon-btn {
+    position: relative;
+  }
+
+  .site-header__actions .icon-btn__count {
+    position: absolute;
+    top: 4px;
+    right: 2px;
+    min-width: 1.15em;
+    height: 1.15em;
+    padding-inline: 0.25em;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-ink);
+    color: var(--color-ivory);
+    line-height: 1.15em;
+  }
+
+  .site-header__actions .icon-btn__count[data-empty='true'] {
+    display: none;
+  }
+
+  /* ---------------------------------------------------------- menu dialog */
+  .nav-dialog {
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background-color: var(--color-ivory);
+    color: var(--color-ink);
+    display: none;
+  }
+
+  .nav-dialog[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nav-dialog::backdrop {
+    background-color: var(--color-overlay);
+  }
+
+  .nav-dialog__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: var(--header-height);
+    padding-inline: var(--gutter);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .nav-dialog__nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-6) var(--gutter);
+  }
+
+  .nav-dialog__nav ul {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nav-dialog__nav a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--color-line);
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    text-decoration: none;
+    color: var(--color-ink);
+  }
+
+  .nav-dialog__nav a[aria-current='page'] {
+    color: var(--color-gold-ink);
+  }
+
+  .nav-dialog__nav :global(svg) {
+    color: var(--color-muted);
+  }
+
+  .nav-dialog__foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    padding: var(--space-5) var(--gutter)
+      calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--color-line);
+    background-color: var(--color-paper);
+  }
+
+  /* ---------------------------------------------------------- responsive */
+  @media (min-width: 1024px) {
+    .site-header__nav {
+      display: block;
+    }
+
+    .site-header__menu {
+      display: none;
+    }
+
+    .nav-dialog {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-nav-dialog]');
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-nav-open]');
+  const closeBtn = document.querySelector<HTMLButtonElement>('[data-nav-close]');
+
+  const open = () => {
+    if (!dialog) return;
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open', '');
+    document.documentElement.style.overflow = 'hidden';
+  };
+
+  const close = () => {
+    if (!dialog) return;
+    if (typeof dialog.close === 'function') dialog.close();
+    else dialog.removeAttribute('open');
+    document.documentElement.style.overflow = '';
+  };
+
+  openBtn?.addEventListener('click', open);
+  closeBtn?.addEventListener('click', close);
+
+  dialog?.addEventListener('close', () => {
+    document.documentElement.style.overflow = '';
+    openBtn?.focus();
+  });
+
+  // Tap the dimmed backdrop to dismiss.
+  dialog?.addEventListener('click', (event) => {
+    if (event.target === dialog) close();
+  });
+
+  // Close the menu after choosing a destination (covers older engines too).
+  dialog?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', close);
+  });
+</script>

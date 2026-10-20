@@ -1,0 +1,42 @@
+---
+/**
+ * A single drawn diamond silhouette (shape explorer, cards, detail, compare).
+ * Decorative by default — the surrounding text always names the shape.
+ */
+import type { SilhouetteId } from '../config/shapes';
+
+interface Props {
+  id: SilhouetteId;
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  class?: string;
+  /** Set false when the SVG itself carries the accessible name. */
+  decorative?: boolean;
+}
+
+const { id, size = 'md', class: className = '', decorative = true } = Astro.props;
+---
+
+<svg
+  class:list={['silhouette', `silhouette--${size}`, className]}
+  viewBox="0 0 100 100"
+  xmlns="http://www.w3.org/2000/svg"
+  aria-hidden={decorative ? 'true' : undefined}
+  role={decorative ? undefined : 'img'}
+  focusable="false"
+>
+  <use href={`#sil-${id}`}></use>
+</svg>
+
+<style>
+  .silhouette {
+    display: block;
+    flex: none;
+    color: inherit;
+  }
+
+  .silhouette--xs { width: 1.5rem; height: 1.5rem; }
+  .silhouette--sm { width: 2.5rem; height: 2.5rem; }
+  .silhouette--md { width: 4rem; height: 4rem; }
+  .silhouette--lg { width: 7rem; height: 7rem; }
+  .silhouette--xl { width: 11rem; height: 11rem; }
+</style>

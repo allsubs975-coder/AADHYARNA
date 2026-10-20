@@ -1,0 +1,146 @@
+---
+/**
+ * Brand introduction — dark band, monogram on ink beside the positioning copy.
+ */
+import { home } from '../../config/content';
+import { brand } from '../../config/brand';
+const c = home.brand;
+---
+
+<section class="section section--ink brand" aria-labelledby="brand-title">
+  <div class="container brand__grid">
+    <div class="brand__copy">
+      <p class="eyebrow">{c.overline}</p>
+      <h2 id="brand-title">{c.title}</h2>
+
+      <div class="brand__text">
+        {c.paragraphs.map((p) => <p>{p}</p>)}
+      </div>
+
+      <ul class="brand__points" role="list">
+        {
+          c.points.map((point) => (
+            <li class="brand__point">
+              <h3>{point.title}</h3>
+              <p>{point.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <figure class="brand__panel">
+      <img
+        src={brand.logo.onInk}
+        srcset={brand.logo.onInkSrcset}
+        sizes={brand.logo.onInkSizes}
+        alt={brand.logo.alt}
+        width="1056"
+        height="528"
+        loading="lazy"
+        decoding="async"
+      />
+      <figcaption>AADHYARNA — lab-grown diamonds, catalogued and open to comparison.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .brand__grid {
+    display: grid;
+    gap: clamp(var(--space-8), 5vw, var(--space-16));
+    align-items: center;
+  }
+
+  .brand__copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    order: 1;
+  }
+
+  .brand__copy h2 {
+    max-width: 18ch;
+  }
+
+  .brand__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    color: var(--color-muted-on-ink);
+    max-width: 58ch;
+  }
+
+  .brand__points {
+    display: grid;
+    gap: var(--space-5);
+    margin-top: var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .brand__point {
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-line-on-ink);
+  }
+
+  .brand__point h3 {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-gold-bright);
+    margin-bottom: var(--space-2);
+  }
+
+  .brand__point p {
+    color: var(--color-muted-on-ink);
+    font-size: var(--text-md);
+    max-width: 46ch;
+  }
+
+  .brand__panel {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-5);
+    margin: 0;
+    padding: clamp(1.75rem, 5vw, 3rem);
+    border: 1px solid var(--color-line-on-ink);
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(90% 90% at 50% 0%, rgb(216 184 119 / 0.1), transparent 70%),
+      rgb(255 255 255 / 0.02);
+    text-align: center;
+  }
+
+  .brand__panel img {
+    width: min(100%, 22rem);
+    height: auto;
+  }
+
+  .brand__panel figcaption {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    line-height: var(--leading-snug);
+    color: var(--color-ivory);
+    max-width: 30ch;
+  }
+
+  @media (min-width: 900px) {
+    .brand__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+    }
+
+    .brand__points {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-5);
+    }
+
+    .brand__panel {
+      order: 0;
+    }
+  }
+</style>

@@ -1,0 +1,210 @@
+---
+/**
+ * Site footer — navigation columns, contact routes and legal line.
+ * Contact details render only when the owner has supplied them
+ * (see src/config/brand.ts); nothing unconfirmed is invented.
+ */
+import { brand, hasContactField } from '../config/brand';
+import { footerColumns, footerNote } from '../config/site';
+import { whatsappAvailable, whatsappUrl, generalEnquiryMessage } from '../lib/enquiry';
+import { inventoryMeta } from '../lib/inventory';
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+
+const year = new Date().getFullYear();
+const contact = brand.contact;
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__grid">
+    <div class="site-footer__brand">
+      <a class="site-footer__logo" href="/" aria-label="AADHYARNA — home">
+        <Logo variant="ink" size="md" />
+      </a>
+      <p class="site-footer__note">{footerNote}</p>
+
+      {
+        whatsappAvailable && (
+          <a
+            class="site-footer__contact"
+            href={whatsappUrl(generalEnquiryMessage())}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Icon name="whatsapp" size={17} filled />
+            <span>{contact.whatsappDisplay}</span>
+          </a>
+        )
+      }
+
+      {
+        hasContactField(contact.email) && (
+          <a class="site-footer__contact" href={`mailto:${contact.email}`}>
+            {contact.email}
+          </a>
+        )
+      }
+
+      {
+        hasContactField(contact.phone) && (
+          <a class="site-footer__contact" href={`tel:${contact.phone.replace(/\s+/g, '')}`}>
+            {contact.phone}
+          </a>
+        )
+      }
+
+      {
+        brand.social.length > 0 && (
+          <ul class="site-footer__social" role="list">
+            {brand.social.map((s) => (
+              <li>
+                <a href={s.href} target="_blank" rel="noopener noreferrer">
+                  {s.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+
+    {
+      footerColumns.map((column) => (
+        <nav class="site-footer__col" aria-label={column.title}>
+          <h2 class="site-footer__title">{column.title}</h2>
+          <ul role="list">
+            {column.links.map((link) => (
+              <li>
+                <a href={link.href}>{link.label}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ))
+    }
+  </div>
+
+  <div class="container site-footer__legal">
+    <p>© {year} {brand.name}. All rights reserved.</p>
+    <p class="site-footer__meta tabular">
+      {inventoryMeta.recordCount} diamonds catalogued · Last inventory update
+      <time datetime={inventoryMeta.generatedAt}>
+        {inventoryMeta.generatedAt.slice(0, 10)}
+      </time>
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background-color: var(--color-ink);
+    color: var(--color-muted-on-ink);
+    margin-top: auto;
+    padding-top: clamp(2.75rem, 6vw, 4.5rem);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    gap: clamp(var(--space-8), 4vw, var(--space-12));
+    grid-template-columns: 1fr;
+    padding-bottom: clamp(2.25rem, 5vw, 3.5rem);
+  }
+
+  .site-footer__logo {
+    text-decoration: none;
+    color: var(--color-ivory);
+    display: inline-flex;
+  }
+
+  .site-footer__note {
+    margin-top: var(--space-4);
+    font-size: var(--text-sm);
+    max-width: 34ch;
+  }
+
+  .site-footer__contact {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-gold-bright);
+    text-decoration: none;
+    width: fit-content;
+  }
+
+  .site-footer__contact:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .site-footer__social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-footer__social a {
+    font-size: var(--text-sm);
+    color: var(--color-muted-on-ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-line-on-ink);
+  }
+
+  .site-footer__social a:hover {
+    color: var(--color-gold-bright);
+    border-color: var(--color-gold-bright);
+  }
+
+  .site-footer__title {
+    font-family: var(--font-sans);
+    font-size: var(--text-2xs);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-gold-bright);
+    margin-bottom: var(--space-4);
+  }
+
+  .site-footer__col ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-footer__col a {
+    font-size: var(--text-md);
+    color: var(--color-muted-on-ink);
+    text-decoration: none;
+  }
+
+  .site-footer__col a:hover {
+    color: var(--color-ivory);
+  }
+
+  .site-footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-block: var(--space-5);
+    border-top: 1px solid var(--color-line-on-ink);
+    font-size: var(--text-xs);
+  }
+
+  .site-footer__meta {
+    color: var(--color-muted-on-ink);
+    opacity: 0.85;
+  }
+
+  @media (min-width: 768px) {
+    .site-footer__grid {
+      grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

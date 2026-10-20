@@ -1,0 +1,87 @@
+---
+/**
+ * Featured diamonds — the documented selection rule: the first eight records
+ * in inventory order that carry both a grading report and a media record.
+ * (Every current record has media, so this reduces to "report recorded".)
+ */
+import { home } from '../../config/content';
+import { diamonds } from '../../lib/inventory';
+import DiamondCard from '../DiamondCard.astro';
+
+const c = home.featured;
+const featured = diamonds.filter((d) => d.hasReport).slice(0, 8);
+---
+
+<section class="section featured" aria-labelledby="featured-title">
+  <div class="container">
+    <div class="section__head section__head--row">
+      <div class="stack" style="gap:var(--space-3)">
+        <p class="eyebrow">{c.overline}</p>
+        <h2 id="featured-title">{c.title}</h2>
+        <p class="lede">{c.support}</p>
+      </div>
+      <a class="btn btn--outline btn--sm featured__all" href={c.ctaHref}>{c.ctaLabel}</a>
+    </div>
+
+    <ul class="featured__grid" role="list">
+      {
+        featured.map((d) => (
+          <li>
+            <DiamondCard diamond={d} />
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="featured__foot">
+      <a class="btn btn--primary" href={c.ctaHref}>{c.ctaLabel}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .featured__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .featured__grid li {
+    display: flex;
+  }
+
+  .featured__grid :global(.dcard) {
+    width: 100%;
+  }
+
+  .featured__foot {
+    display: flex;
+    justify-content: center;
+    margin-top: clamp(1.75rem, 4vw, 2.75rem);
+  }
+
+  .featured__foot :global(.btn) {
+    width: min(100%, 22rem);
+  }
+
+  @media (max-width: 767px) {
+    .featured__all {
+      display: none;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .featured__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .featured__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-5);
+    }
+  }
+</style>

@@ -1,0 +1,283 @@
+﻿---
+/**
+ * Side-by-side comparison of up to four diamonds.
+ *
+ * The table is server-rendered for the whole inventory and hidden until the
+ * visitor's saved comparison needs it, so every column is already on the page
+ * (no fetch, no product JSON). Without JavaScript the comparison cannot know
+ * the visitor's list, so it says so instead of showing all columns.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs, { type Crumb } from '../../components/Breadcrumbs.astro';
+import Icon from '../../components/Icon.astro';
+import { compareLimit, features } from '../../config/features';
+import { diamondEnquiryMessage, whatsappAvailable, whatsappUrl } from '../../lib/enquiry';
+import { formatCarat } from '../../lib/format';
+import { diamonds } from '../../lib/inventory';
+import { diamondSpecs } from '../../lib/specs';
+
+const title = `Compare Diamonds | AADHYARNA`;
+const description = `Place up to ${compareLimit} lab-grown diamonds side by side — carat, colour, clarity, polish, symmetry, measurements, depth and table compared line by line.`;
+
+const crumbs: Crumb[] = [
+  { label: 'Home', href: '/' },
+  { label: 'Compare' },
+];
+
+const columns = diamonds.map((d) => ({ d, specs: diamondSpecs(d) }));
+const rows = columns.length > 0 ? columns[0].specs.map((row, i) => ({ row, i })) : [];
+---
+
+<BaseLayout title={title} description={description} path="/compare/" noindex>
+  <Breadcrumbs items={crumbs} />
+
+  <section class="section section--tight">
+    <div class="container">
+      <p class="eyebrow">Comparison</p>
+      <h1>Compare diamonds</h1>
+      <p class="lede">
+        Add up to {compareLimit} diamonds from the catalogue and read their specifications
+        line by line. The list lives in this browser.
+      </p>
+
+      <p class="compare__count" role="status" aria-live="polite" data-js-only data-compare-status>
+      </p>
+
+      <div class="empty-state compare__empty" data-js-only data-compare-empty hidden>
+        <h3>Nothing to compare yet</h3>
+        <p>
+          Open a diamond and tap Compare, or use the Compare button on any card — up to
+          {compareLimit} can sit side by side here.
+        </p>
+        <a class="btn btn--outline btn--sm" href="/diamonds">Browse diamonds</a>
+      </div>
+
+      <p class="compare__nojs" data-nojs>
+        The comparison needs JavaScript — your saved list is kept in this browser. Every
+        specification is also shown on each diamond's own page.
+      </p>
+
+      <div class="compare__wrap" data-js-only data-compare-table hidden>
+        <p class="compare__hint">Scroll sideways to see every column.</p>
+        <table class="compare__table">
+          <thead>
+            <tr>
+              <th scope="col" class="compare__corner">
+                <span class="sr-only">Specification</span>
+              </th>
+              {
+                columns.map(({ d }) => (
+                  <th scope="col" data-col={d.id} class="compare__col">
+                    <div class="compare__head">
+                      <a class="compare__link" href={`/diamonds/${encodeURIComponent(d.id)}/`}>
+                        <span class="compare__id tabular">{d.id}</span>
+                        <span class="compare__meta">
+                          {formatCarat(d.weight)} · {d.shape}
+                        </span>
+                      </a>
+                      <button
+                        type="button"
+                        class="icon-btn compare__remove"
+                        data-compare-remove={d.id}
+                      >
+                        <Icon name="close" size={15} />
+                        <span class="sr-only">Remove {d.id} from the comparison</span>
+                      </button>
+                    </div>
+                  </th>
+                ))
+              }
+            </tr>
+          </thead>
+          <tbody>
+            {
+              rows.map(({ row, i }) => (
+                <tr>
+                  <th scope="row" class="compare__label">
+                    {row.label}
+                  </th>
+                  {columns.map(({ d, specs }) => (
+                    <td
+                      data-col={d.id}
+                      class:list={[specs[i].tabular && 'tabular', 'compare__cell']}
+                    >
+                      {specs[i].value}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row" class="compare__label">Actions</th>
+              {
+                columns.map(({ d }) => (
+                  <td data-col={d.id} class="compare__cell">
+                    <div class="compare__actions">
+                      <a class="text-link" href={`/diamonds/${encodeURIComponent(d.id)}/`}>
+                        Details
+                      </a>
+                      {whatsappAvailable && (
+                        <a
+                          class="text-link"
+                          href={whatsappUrl(diamondEnquiryMessage(d))}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Enquire
+                        </a>
+                      )}
+                    </div>
+                  </td>
+                ))
+              }
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      {
+        !features.compare && (
+          <p class="compare__note">Comparison is currently switched off for this site.</p>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .compare__count {
+    margin-top: var(--space-5);
+    font-size: var(--text-md);
+    color: var(--color-ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .compare__empty {
+    margin-top: var(--space-5);
+  }
+
+  .compare__nojs,
+  .compare__note {
+    margin-top: var(--space-5);
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--color-paper);
+    border: 1px dashed var(--color-line-strong);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .compare__hint {
+    margin-top: var(--space-5);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .compare__wrap {
+    margin-top: var(--space-3);
+    overflow-x: auto;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-white);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .compare__table {
+    border-collapse: collapse;
+    min-width: 100%;
+    font-size: var(--text-sm);
+  }
+
+  .compare__table th,
+  .compare__table td {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .compare__corner,
+  .compare__label {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    min-width: 9.5rem;
+    background-color: var(--color-paper);
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    font-weight: 600;
+    border-right: 1px solid var(--color-line);
+  }
+
+  .compare__col {
+    min-width: 12.5rem;
+    background-color: var(--color-white);
+    vertical-align: bottom;
+  }
+
+  .compare__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  .compare__link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .compare__link:hover .compare__id {
+    color: var(--color-gold-ink);
+  }
+
+  .compare__id {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-gold-ink);
+  }
+
+  .compare__meta {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .compare__remove {
+    flex: none;
+  }
+
+  .compare__cell {
+    min-width: 12.5rem;
+    color: var(--color-ink);
+  }
+
+  .compare__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    align-items: flex-start;
+  }
+
+  .compare__table tfoot th,
+  .compare__table tfoot td {
+    border-bottom: 0;
+    border-top: 1px solid var(--color-line-strong);
+  }
+</style>
+
+<script>
+  import '../../scripts/compare';
+</script>

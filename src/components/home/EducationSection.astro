@@ -1,0 +1,101 @@
+---
+import { home } from '../../config/content';
+const c = home.education;
+---
+
+<section class="section section--paper education" aria-labelledby="education-title">
+  <div class="container">
+    <div class="section__head section__head--center">
+      <p class="eyebrow">{c.overline}</p>
+      <h2 id="education-title">{c.title}</h2>
+      <p class="lede">{c.support}</p>
+    </div>
+
+    <ul class="education__grid" role="list">
+      {
+        c.items.map((item) => (
+          <li>
+            <a class="education__card" href={item.href}>
+              <span class="education__title">{item.title}</span>
+              <span class="education__summary">{item.summary}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="education__foot">
+      <a class="btn btn--outline" href={c.ctaHref}>{c.ctaLabel}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .education__grid {
+    display: grid;
+    gap: var(--space-3);
+    padding: 0;
+    list-style: none;
+  }
+
+  .education__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    height: 100%;
+    padding: var(--space-5);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-line);
+    border-left: 2px solid var(--color-gold);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition:
+      border-color var(--duration) var(--ease),
+      transform var(--duration) var(--ease),
+      box-shadow var(--duration) var(--ease);
+  }
+
+  .education__card:hover {
+    border-color: var(--color-gold-deep);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+  }
+
+  .education__title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--color-ink);
+  }
+
+  .education__summary {
+    font-size: var(--text-md);
+    color: var(--color-muted);
+    line-height: var(--leading-snug);
+  }
+
+  .education__foot {
+    display: flex;
+    justify-content: center;
+    margin-top: clamp(1.75rem, 4vw, 2.5rem);
+  }
+
+  @media (min-width: 640px) {
+    .education__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .education__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .education__card:hover {
+      transform: none;
+    }
+  }
+</style>

@@ -1,0 +1,395 @@
+---
+/**
+ * Diamond detail page — one static URL per stone (/diamonds/<id>/).
+ *
+ * Every value comes straight from the published inventory. The grading report
+ * number and the media URLs are private: the report is mentioned as "on file"
+ * and videos/photos are offered on request.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs, { type Crumb } from '../../components/Breadcrumbs.astro';
+import DiamondCard from '../../components/DiamondCard.astro';
+import Icon from '../../components/Icon.astro';
+import ShapeSilhouette from '../../components/ShapeSilhouette.astro';
+import { brand } from '../../config/brand';
+import { features } from '../../config/features';
+import { site, absoluteUrl } from '../../config/site';
+import { familyById } from '../../config/shapes';
+import { diamondEnquiryMessage, whatsappAvailable, whatsappUrl } from '../../lib/enquiry';
+import { availabilityLabel, diamondTitle, formatCarat, formatPercent } from '../../lib/format';
+import { diamonds } from '../../lib/inventory';
+import type { Diamond } from '../../lib/types';
+
+export function getStaticPaths() {
+  return diamonds.map((d) => ({ params: { id: d.id }, props: { diamond: d } }));
+}
+
+interface Props {
+  diamond: Diamond;
+}
+
+const { diamond: d } = Astro.props;
+const family = familyById(d.shapeFamily);
+
+const title = diamondTitle(d);
+const description = `${formatCarat(d.weight)} ${family.label.toLowerCase()} lab-grown diamond, ${d.color} colour, ${d.clarity} clarity. Stone ${d.id} — ${availabilityLabel(d.availability).toLowerCase()}, full specifications recorded, grading report and video shared on request from AADHYARNA.`;
+
+const recorded = (value: string | null): string =>
+  value && value.trim() !== '' ? value : 'Not recorded';
+
+const specs: Array<{ label: string; value: string; tabular?: boolean }> = [
+  { label: 'Stone ID', value: d.id, tabular: true },
+  { label: 'Availability', value: availabilityLabel(d.availability) },
+  { label: 'Shape', value: recorded(d.shape) },
+  { label: 'Shape family', value: family.label },
+  { label: 'Carat', value: formatCarat(d.weight), tabular: true },
+  { label: 'Colour', value: recorded(d.color) },
+  { label: 'Clarity', value: recorded(d.clarity) },
+  { label: 'Cut', value: recorded(d.cut) },
+  { label: 'Polish', value: recorded(d.polish) },
+  { label: 'Symmetry', value: recorded(d.symmetry) },
+  { label: 'Fluorescence', value: recorded(d.fluorescence) },
+  { label: 'Measurements', value: recorded(d.measurements), tabular: true },
+  { label: 'Depth', value: formatPercent(d.depth), tabular: true },
+  { label: 'Table', value: formatPercent(d.table), tabular: true },
+  {
+    label: 'Grading report',
+    value: d.hasReport ? 'On file — number shared on request' : 'No report recorded',
+  },
+];
+
+const crumbs: Crumb[] = [
+  { label: 'Home', href: '/' },
+  { label: 'Diamonds', href: '/diamonds' },
+  { label: family.label, href: `/diamonds/family/${family.id}/` },
+  { label: d.id },
+];
+
+const related = diamonds
+  .filter((other) => other.shapeFamily === d.shapeFamily && other.id !== d.id)
+  .slice(0, 6);
+
+const jsonLd = site.url
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: title,
+      sku: d.id,
+      description,
+      brand: { '@type': 'Brand', name: brand.name },
+      category: family.label,
+      url: absoluteUrl(`/diamonds/${d.id}/`),
+      offers: {
+        '@type': 'Offer',
+        url: absoluteUrl(`/diamonds/${d.id}/`),
+        availability:
+          d.availability.trim().toUpperCase() === 'YES'
+            ? 'https://schema.org/InStock'
+            : 'https://schema.org/OutOfStock',
+      },
+    }
+  : undefined;
+---
+
+<BaseLayout title={title} description={description} path={Astro.url.pathname} jsonLd={jsonLd}>
+  <Breadcrumbs items={crumbs} />
+
+  <section class="section section--tight detail">
+    <div class="container detail__grid">
+      <div class="detail__media">
+        <figure class="detail__figure">
+          <div class="detail__stage">
+            <ShapeSilhouette id={family.silhouette} size="xl" class="detail__sil" />
+          </div>
+          <figcaption class="detail__caption">
+            <span class="detail__caption-label">{family.label} silhouette</span>
+            <span class="detail__caption-note">
+              Drawn to the recorded shape — video and photographs are shared on request.
+            </span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="detail__info">
+        <p class="eyebrow">Stone {d.id}</p>
+        <h1 class="detail__title">
+          {formatCarat(d.weight)} {family.label} Lab-Grown Diamond
+        </h1>
+        <p class="detail__summary">
+          <span class="detail__summary-item">{d.color} colour</span>
+          <span aria-hidden="true">·</span>
+          <span class="detail__summary-item">{d.clarity} clarity</span>
+          <span aria-hidden="true">·</span>
+          <span class="detail__summary-item">{availabilityLabel(d.availability)}</span>
+        </p>
+
+        <div class="detail__actions" data-js-only>
+          {
+            features.wishlist && (
+              <button
+                type="button"
+                class="btn btn--outline detail__btn"
+                data-wishlist-toggle={d.id}
+                aria-pressed="false"
+              >
+                <Icon name="heart" size={17} />
+                <span class="sr-only">{d.id} </span>
+                <span data-toggle-text>Save</span>
+              </button>
+            )
+          }
+          {
+            features.compare && (
+              <button
+                type="button"
+                class="btn btn--outline detail__btn"
+                data-compare-toggle={d.id}
+                aria-pressed="false"
+              >
+                <Icon name="compare" size={17} />
+                <span class="sr-only">{d.id} </span>
+                <span data-toggle-text>Compare</span>
+              </button>
+            )
+          }
+          <button type="button" class="btn btn--outline detail__btn" data-share>
+            <Icon name="share" size={17} />
+            Share
+          </button>
+          {
+            whatsappAvailable && (
+              <a
+                class="btn btn--whatsapp detail__btn"
+                href={whatsappUrl(diamondEnquiryMessage(d))}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Icon name="whatsapp" size={17} filled />
+                Enquire on WhatsApp
+              </a>
+            )
+          }
+        </div>
+
+        <dl class="detail__specs">
+          {
+            specs.map((spec) => (
+              <div class="detail__spec">
+                <dt>{spec.label}</dt>
+                <dd class:list={[spec.tabular && 'tabular']}>{spec.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+
+        <p class="detail__note">
+          The grading report number, the video and the photographs for this stone are
+          private — ask for them on WhatsApp and they are sent directly.
+        </p>
+
+        <a class="text-link detail__back" href="/diamonds">
+          <Icon name="arrowLeft" size={16} />
+          Back to the catalogue
+        </a>
+      </div>
+    </div>
+  </section>
+
+  {
+    related.length > 0 && (
+      <section class="section related" aria-labelledby="related-heading">
+        <div class="container">
+          <div class="related__head">
+            <h2 id="related-heading">More {family.label.toLowerCase()} diamonds</h2>
+            <a class="text-link" href={`/diamonds/family/${family.id}/`}>
+              See all {family.label.toLowerCase()} diamonds
+            </a>
+          </div>
+          <div class="related__grid">
+            {related.map((other) => (
+              <DiamondCard diamond={other} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .detail__grid {
+    display: grid;
+    gap: clamp(var(--space-6), 4vw, var(--space-9));
+  }
+
+  .detail__figure {
+    margin: 0;
+  }
+
+  .detail__stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    padding: var(--space-6);
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgb(255 255 255 / 0.95), transparent 70%),
+      var(--color-white);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    color: var(--color-ink-soft);
+  }
+
+  .detail__sil {
+    width: min(70%, 20rem);
+    height: auto;
+  }
+
+  .detail__caption {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .detail__caption-label {
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    font-size: var(--text-2xs);
+    color: var(--color-ink-soft);
+  }
+
+  .detail__info {
+    min-width: 0;
+  }
+
+  .detail__title {
+    margin-block: var(--space-3) var(--space-3);
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+  }
+
+  .detail__summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    font-size: var(--text-md);
+    color: var(--color-ink-soft);
+  }
+
+  .detail__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+  }
+
+  .detail__btn {
+    flex: 1 1 auto;
+    justify-content: center;
+    min-height: 46px;
+  }
+
+  .detail__specs {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin-top: var(--space-6);
+    border-top: 1px solid var(--color-line);
+  }
+
+  .detail__spec {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .detail__spec dt {
+    font-size: var(--text-xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .detail__spec dd {
+    margin: 0;
+    text-align: right;
+    font-size: var(--text-md);
+    color: var(--color-ink);
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .detail__note {
+    margin-top: var(--space-5);
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--color-paper);
+    border: 1px dashed var(--color-line-strong);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .detail__back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+  }
+
+  .related__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+  }
+
+  .related__head h2 {
+    font-size: clamp(1.35rem, 3vw, 1.9rem);
+  }
+
+  .related__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 768px) {
+    .detail__specs {
+      grid-template-columns: 1fr 1fr;
+      column-gap: var(--space-6);
+    }
+
+    .related__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+
+    .detail__btn {
+      flex: 0 0 auto;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .detail__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      align-items: start;
+    }
+
+    .detail__media {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-5));
+    }
+
+    .related__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>

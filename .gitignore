@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+.astro/
+
+# private inventory — contains owner-only fields (report numbers, media URLs).
+# Never imported by site code. See README > "Public vs private data".
+private/
+
+# local environment files (no secrets are committed to this project)
+.env
+.env.*
+
+# logs and OS noise
+npm-debug.log*
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,66 @@
+---
+import { home } from '../../config/content';
+const c = home.cta;
+---
+
+<section class="section section--ink final-cta" aria-labelledby="cta-title">
+  <div class="container final-cta__inner">
+    <p class="eyebrow">{c.overline}</p>
+    <h2 id="cta-title">{c.title}</h2>
+    <p class="lede">{c.support}</p>
+    <div class="cluster final-cta__actions">
+      <a class="btn btn--gold" href={c.primaryHref}>{c.primaryLabel}</a>
+      <a class="btn btn--outline-light" href={c.secondaryHref}>{c.secondaryLabel}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .final-cta__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-4);
+    max-width: 46rem;
+    margin-inline: auto;
+  }
+
+  .final-cta__inner h2 {
+    font-size: var(--text-3xl);
+    max-width: 20ch;
+  }
+
+  .final-cta__inner .lede {
+    max-width: 52ch;
+    text-align: center;
+  }
+
+  .final-cta__actions {
+    justify-content: center;
+    margin-top: var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .final-cta__actions :global(.btn) {
+    flex: 1 1 auto;
+    min-width: min(100%, 14rem);
+  }
+
+  .final-cta__actions :global(.btn--outline-light) {
+    border-color: var(--color-line-on-ink);
+    color: var(--color-ivory);
+    background-color: transparent;
+  }
+
+  .final-cta__actions :global(.btn--outline-light:hover) {
+    border-color: var(--color-gold-bright);
+    color: var(--color-gold-bright);
+  }
+
+  @media (min-width: 768px) {
+    .final-cta__actions :global(.btn) {
+      flex: 0 0 auto;
+    }
+  }
+</style>

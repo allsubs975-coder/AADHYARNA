@@ -1,0 +1,121 @@
+---
+import { home } from '../../config/content';
+import Logo from '../Logo.astro';
+
+const c = home.hero;
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="container hero__grid">
+    <div class="hero__copy">
+      <p class="eyebrow">{c.overline}</p>
+      <hr class="rule rule--short" />
+      <h1 id="hero-title">{c.headline}</h1>
+      <p class="lede">{c.support}</p>
+      <div class="cluster hero__actions">
+        <a class="btn btn--primary" href={c.primaryCta.href}>{c.primaryCta.label}</a>
+        <a class="btn btn--outline" href={c.secondaryCta.href}>{c.secondaryCta.label}</a>
+      </div>
+    </div>
+
+    <div class="hero__panel">
+      <Logo size="lg" showWordmark={false} />
+      <hr class="hero__rule" />
+      <p class="hero__caption">
+        Antique, European, Old Miner and rare fancy cuts — catalogued from one working
+        inventory.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    padding-block: clamp(2.75rem, 7vw, 5.5rem);
+    background:
+      radial-gradient(75% 120% at 85% 0%, rgb(201 162 75 / 0.12), transparent 60%),
+      radial-gradient(60% 100% at 0% 100%, rgb(201 162 75 / 0.07), transparent 65%);
+    overflow: hidden;
+  }
+
+  .hero__grid {
+    display: grid;
+    gap: clamp(var(--space-8), 5vw, var(--space-16));
+    align-items: center;
+  }
+
+  .hero__copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 34ch;
+  }
+
+  .hero__copy h1 {
+    font-size: var(--text-4xl);
+    font-weight: 500;
+  }
+
+  .hero__copy .lede {
+    max-width: 44ch;
+  }
+
+  .hero__actions {
+    margin-top: var(--space-3);
+    gap: var(--space-3);
+  }
+
+  .hero__actions :global(.btn) {
+    flex: 1 1 auto;
+    min-width: min(100%, 14rem);
+  }
+
+  .hero__panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-4);
+    padding: clamp(1.75rem, 5vw, 3rem);
+    background-color: rgb(251 249 245 / 0.78);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .hero__panel :global(img) {
+    width: min(100%, 24rem);
+    height: auto;
+  }
+
+  .hero__rule {
+    width: 72px;
+    height: 1px;
+    border: 0;
+    background: var(--color-gold);
+    opacity: 0.7;
+  }
+
+  .hero__caption {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    line-height: var(--leading-snug);
+    color: var(--color-ink-soft);
+    max-width: 30ch;
+  }
+
+  @media (min-width: 900px) {
+    .hero__grid {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    }
+
+    .hero__copy h1 {
+      font-size: clamp(2.75rem, 4.4vw, 4.25rem);
+    }
+
+    .hero__actions :global(.btn) {
+      flex: 0 0 auto;
+    }
+  }
+</style>

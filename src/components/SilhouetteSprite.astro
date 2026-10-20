@@ -1,0 +1,33 @@
+---
+/**
+ * The one and only copy of the silhouette artwork, rendered once per page.
+ * Every ShapeSilhouette instance points at these symbols with <use href>.
+ */
+import { ALL_SILHOUETTE_IDS, silhouetteSymbolContent } from '../lib/silhouettes';
+---
+
+<svg
+  class="silhouette-sprite"
+  aria-hidden="true"
+  focusable="false"
+  width="0"
+  height="0"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  {
+    ALL_SILHOUETTE_IDS.map((id) => (
+      <symbol id={`sil-${id}`} viewBox="0 0 100 100">
+        <Fragment set:html={silhouetteSymbolContent(id)} />
+      </symbol>
+    ))
+  }
+</svg>
+
+<style>
+  .silhouette-sprite {
+    position: absolute;
+    inset: 0 auto auto 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+</style>
