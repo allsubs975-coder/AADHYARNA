@@ -38,6 +38,18 @@ if (mainForm) {
   const emptyEl = document.querySelector<HTMLElement>('[data-empty-state]');
   const badgeEl = document.querySelector<HTMLElement>('[data-filter-badge]');
   const dialog = document.querySelector<HTMLDialogElement>('[data-filters-dialog]');
+  const moreWrap = document.querySelector<HTMLElement>('[data-show-more-wrap]');
+  const moreBtn = document.querySelector<HTMLButtonElement>('[data-show-more]');
+  const pills = [...document.querySelectorAll<HTMLButtonElement>('[data-shape-pill]')];
+  /* Sticky-bar sort select — a UI mirror of the primary #cat-sort so state
+     is only ever read from one place. */
+  const sortM = document.querySelector<HTMLSelectElement>('#cat-sort-m');
+
+  /* Progressive reveal: the grid shows PAGE_SIZE matches at a time so a
+     145-card list never becomes a 40 000-pixel scroll. Without JavaScript
+     every card stays visible — `hidden` is only ever set from here. */
+  const PAGE_SIZE = 24;
+  let visibleLimit = PAGE_SIZE;
 
   /* ------------------------------------------------------------- records */
 
@@ -207,6 +219,13 @@ if (mainForm) {
         else if (name === 'shape') input.value = state.shape;
       });
     }
+
+    for (const btn of pills) {
+      const id = btn.dataset.shapePill;
+      btn.setAttribute('aria-pressed', id !== undefined && state.families.includes(id) ? 'true' : 'false');
+    }
+
+    if (sortM) sortM.value = state.sort;
   }
 
   function multiValues(state: FilterState, name: string): string[] {
@@ -324,8 +343,15 @@ if (mainForm) {
 
     for (const record of records) {
       const order = orderById.get(record.id);
-      record.el.hidden = order === undefined;
+      const visible = order !== undefined && order < visibleLimit;
+      record.el.hidden = !visible;
       record.el.style.order = order === undefined ? '' : String(order);
+    }
+
+    if (moreWrap && moreBtn) {
+      const remaining = Math.max(0, matched.length - visibleLimit);
+      moreWrap.hidden = remaining === 0;
+      moreBtn.textContent = `Show ${Math.min(PAGE_SIZE, remaining)} more`;
     }
 
     if (countEl) {
@@ -350,6 +376,7 @@ if (mainForm) {
   }
 
   function refresh(scope: ParentNode, updateUrl = true): void {
+    visibleLimit = PAGE_SIZE;
     const state = currentState(scope);
     syncControls(state);
     apply(state, { updateUrl });
@@ -362,6 +389,12 @@ if (mainForm) {
   form.addEventListener('change', (event) => {
     const target = event.target as HTMLElement | null;
     if (target?.matches('[data-filter-input]')) refresh(form);
+  });
+
+  sortM?.addEventListener('change', () => {
+    const primary = form.querySelector<HTMLSelectElement>('#cat-sort');
+    if (primary) primary.value = sortM.value;
+    refresh(form);
   });
 
   drawer?.addEventListener('change', (event) => {
@@ -406,6 +439,7 @@ if (mainForm) {
       const key = remove.dataset.chipKey as Parameters<typeof removeChip>[1];
       const value = remove.dataset.chipValue ?? '';
       const state = removeChip(currentState(form), key, value);
+      visibleLimit = PAGE_SIZE;
       syncControls(state);
       apply(state);
       return;
@@ -413,6 +447,7 @@ if (mainForm) {
 
     if (target.closest('[data-clear]')) {
       const state = clearAllFilters(currentState(form));
+      visibleLimit = PAGE_SIZE;
       syncControls(state);
       apply(state);
     }
@@ -430,8 +465,27 @@ if (mainForm) {
     if (event.target === dialog) dialog.close();
   });
 
+  moreBtn?.addEventListener('click', () => {
+    visibleLimit += PAGE_SIZE;
+    apply(currentState(form), { updateUrl: false });
+  });
+
+  for (const btn of pills) {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.shapePill;
+      if (!id) return;
+      const box = form.querySelector<HTMLInputElement>(
+        `input[name="family"][value="${CSS.escape(id)}"]`,
+      );
+      if (!box) return;
+      box.checked = !box.checked;
+      refresh(form);
+    });
+  }
+
   window.addEventListener('popstate', () => {
     const state = initialFromUrl();
+    visibleLimit = PAGE_SIZE;
     syncControls(state);
     apply(state, { updateUrl: false });
   });

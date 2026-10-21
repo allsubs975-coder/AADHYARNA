@@ -385,11 +385,37 @@ const orbit = FEATURED_SHAPE_FAMILIES.slice(0, 4).map((id) => familyById(id));
 
   @media (max-width: 600px) {
     .hero__mark {
-      width: 84%;
+      width: 74%;
     }
 
+    /* Two floats on the diagonal — the other two would collide with the
+       monogram once the panel narrows. */
     .hero__float {
-      scale: 0.82;
+      scale: 0.9;
+    }
+
+    .hero__float--1 {
+      left: 3%;
+      top: 7%;
+    }
+
+    .hero__float--2,
+    .hero__float--3,
+    .hero__spark {
+      display: none;
+    }
+
+    .hero__float--4 {
+      right: 3%;
+      bottom: 7%;
+    }
+
+    .hero__ring--outer {
+      border-color: rgb(201 162 75 / 0.32);
+    }
+
+    .hero__ring--inner {
+      border-color: rgb(216 184 119 / 0.42);
     }
   }
 

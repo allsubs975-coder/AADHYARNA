@@ -85,7 +85,14 @@ console.log('\n/catalogue filtering');
 await page.goto(`${BASE}/diamonds`, { waitUntil: 'networkidle' });
 
 ok((await readCount()) === 'Showing 145 of 145 diamonds', 'starts with all 145 diamonds', await readCount());
-ok((await visibleCards()) === 145, 'renders 145 visible cards', String(await visibleCards()));
+ok((await visibleCards()) === 24, 'renders first page of 24 cards', String(await visibleCards()));
+
+// show more
+const moreLabel = (await page.locator('[data-show-more]').textContent())?.trim();
+ok(moreLabel === 'Show 24 more', 'show-more button counts the page', String(moreLabel));
+await page.locator('[data-show-more]').click();
+await page.waitForTimeout(150);
+ok((await visibleCards()) === 48, 'show more reveals 24 more cards', String(await visibleCards()));
 
 // shape family
 await page.locator('#side-fam-oval').check();
@@ -100,6 +107,20 @@ ok(chipText === 'Shape: Oval', 'chip label reads Shape: Oval', String(chipText))
 await page.locator('[data-chips] .chip__remove').first().click();
 await page.waitForTimeout(150);
 ok((await readCount()) === 'Showing 145 of 145 diamonds', 'removing chip restores all', await readCount());
+
+// quick shape pills
+await page.locator('[data-shape-pill="oval"]').click();
+await page.waitForTimeout(150);
+ok((await readCount()) === 'Showing 8 of 145 diamonds', 'shape pill filters to family', await readCount());
+const pillPressed = await page.locator('[data-shape-pill="oval"]').getAttribute('aria-pressed');
+ok(pillPressed === 'true', 'shape pill shows pressed state', String(pillPressed));
+await page.locator('[data-chips] [data-clear]').click();
+await page.waitForTimeout(150);
+ok((await readCount()) === 'Showing 145 of 145 diamonds', 'clearing pill restores all', await readCount());
+ok(
+  (await page.locator('[data-shape-pill="oval"]').getAttribute('aria-pressed')) === 'false',
+  'pill releases after clear',
+);
 
 // carat range
 await page.locator('#side-caratMin').fill('3');
