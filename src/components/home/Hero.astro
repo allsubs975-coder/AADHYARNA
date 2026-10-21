@@ -1,8 +1,17 @@
 ---
 import { home } from '../../config/content';
-import Logo from '../Logo.astro';
+import { brand } from '../../config/brand';
+import { diamonds } from '../../lib/inventory';
+import { FEATURED_SHAPE_FAMILIES, familyById } from '../../config/shapes';
+import ShapeSilhouette from '../ShapeSilhouette.astro';
 
 const c = home.hero;
+
+const total = diamonds.length;
+const familiesPresent = new Set(diamonds.map((d) => d.shapeFamily)).size;
+
+/* Four cuts float in the orbit ring — one antique, one step, one portrait, one fancy. */
+const orbit = FEATURED_SHAPE_FAMILIES.slice(0, 4).map((id) => familyById(id));
 ---
 
 <section class="hero" aria-labelledby="hero-title">
@@ -16,10 +25,50 @@ const c = home.hero;
         <a class="btn btn--primary" href={c.primaryCta.href}>{c.primaryCta.label}</a>
         <a class="btn btn--outline" href={c.secondaryCta.href}>{c.secondaryCta.label}</a>
       </div>
+
+      <dl class="hero__stats">
+        <div class="hero__stat">
+          <dt class="tabular">{total}</dt>
+          <dd>Diamonds catalogued</dd>
+        </div>
+        <div class="hero__stat">
+          <dt class="tabular">{familiesPresent}</dt>
+          <dd>Cut families</dd>
+        </div>
+        <div class="hero__stat">
+          <dt class="tabular">100%</dt>
+          <dd>Lab-grown stones</dd>
+        </div>
+      </dl>
     </div>
 
     <div class="hero__panel">
-      <Logo variant="ink" size="lg" showWordmark={false} />
+      <div class="hero__orbit" aria-hidden="true">
+        <span class="hero__ring hero__ring--outer"></span>
+        <span class="hero__ring hero__ring--inner"></span>
+        {
+          orbit.map((family, i) => (
+            <span class={`hero__float hero__float--${i + 1}`}>
+              <ShapeSilhouette id={family.silhouette} size="sm" />
+            </span>
+          ))
+        }
+        <span class="hero__spark hero__spark--1"></span>
+        <span class="hero__spark hero__spark--2"></span>
+        <span class="hero__spark hero__spark--3"></span>
+      </div>
+
+      <img
+        class="hero__mark"
+        src={brand.logo.onInk}
+        srcset={brand.logo.onInkSrcset}
+        sizes="(min-width: 900px) 420px, 76vw"
+        alt={brand.logo.alt}
+        width="1056"
+        height="528"
+        decoding="async"
+        fetchpriority="high"
+      />
       <hr class="hero__rule" />
       <p class="hero__caption">
         Antique, European, Old Miner and rare fancy cuts — catalogued from one working
@@ -99,21 +148,62 @@ const c = home.hero;
     min-width: min(100%, 14rem);
   }
 
+  /* ---------------------------------------------------------- stats strip */
+  .hero__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-line-strong);
+  }
+
+  .hero__stat {
+    min-width: 0;
+  }
+
+  .hero__stats dt {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+    color: var(--color-gold-ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hero__stats dd {
+    margin-top: var(--space-1);
+    font-size: var(--text-2xs);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    line-height: var(--leading-snug);
+  }
+
+  /* ---------------------------------------------------------- dark panel */
   .hero__panel {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     gap: var(--space-4);
-    padding: clamp(1.75rem, 5vw, 3rem);
+    padding: clamp(2.25rem, 6vw, 3.5rem) clamp(1.75rem, 5vw, 3rem);
     position: relative;
+    min-height: clamp(20rem, 46vw, 27rem);
+    justify-content: center;
     background:
       radial-gradient(
         90% 70% at 50% 0%,
         rgb(216 184 119 / 0.16),
         transparent 70%
       ),
-      linear-gradient(165deg, #222015, var(--color-ink) 65%);
+      radial-gradient(
+        65% 55% at 50% 110%,
+        rgb(201 162 75 / 0.14),
+        transparent 70%
+      ),
+      linear-gradient(165deg, #242116, var(--color-ink) 65%);
     border: 1px solid rgb(201 162 75 / 0.4);
     border-radius: var(--radius-lg);
     box-shadow: var(--glow-ink), inset 0 1px 0 rgb(255 255 255 / 0.06);
@@ -136,14 +226,139 @@ const c = home.hero;
     pointer-events: none;
   }
 
-  .hero__panel > * {
+  .hero__panel > *:not(.hero__orbit) {
     position: relative;
     z-index: 1;
   }
 
-  .hero__panel :global(img) {
-    width: min(100%, 24rem);
+  .hero__mark {
+    width: min(100%, 24.5rem);
     height: auto;
+  }
+
+  /* ---------------------------------------------------------- orbit rings */
+  .hero__orbit {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .hero__ring {
+    position: absolute;
+    left: 50%;
+    top: 44%;
+    translate: -50% -50%;
+    border-radius: 50%;
+    border: 1px solid rgb(201 162 75 / 0.22);
+  }
+
+  .hero__ring--outer {
+    width: min(88%, 30rem);
+    aspect-ratio: 1;
+    border-style: dashed;
+    border-color: rgb(201 162 75 / 0.18);
+    animation: hero-spin 90s linear infinite;
+  }
+
+  .hero__ring--inner {
+    width: min(62%, 21rem);
+    aspect-ratio: 1;
+    border-color: rgb(216 184 119 / 0.3);
+  }
+
+  /* Floating cuts riding the orbit */
+  .hero__float {
+    position: absolute;
+    color: rgb(216 184 119 / 0.85);
+    animation: hero-float 7s var(--ease) infinite alternate;
+    filter: drop-shadow(0 6px 14px rgb(0 0 0 / 0.35));
+  }
+
+  .hero__float--1 {
+    left: 3%;
+    top: 9%;
+    animation-duration: 6.5s;
+  }
+
+  .hero__float--2 {
+    right: 4%;
+    top: 15%;
+    animation-duration: 8s;
+    animation-delay: -2s;
+  }
+
+  .hero__float--3 {
+    left: 5%;
+    bottom: 13%;
+    animation-duration: 7.5s;
+    animation-delay: -4s;
+  }
+
+  .hero__float--4 {
+    right: 5%;
+    bottom: 9%;
+    animation-duration: 9s;
+    animation-delay: -1s;
+  }
+
+  /* Tiny gold sparks */
+  .hero__spark {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: var(--color-gold-bright);
+    rotate: 45deg;
+    opacity: 0.75;
+    animation: hero-spark 3.6s ease-in-out infinite;
+  }
+
+  .hero__spark--1 {
+    left: 26%;
+    top: 34%;
+  }
+
+  .hero__spark--2 {
+    right: 24%;
+    top: 56%;
+    animation-delay: -1.2s;
+    width: 4px;
+    height: 4px;
+  }
+
+  .hero__spark--3 {
+    left: 48%;
+    bottom: 12%;
+    animation-delay: -2.4s;
+    width: 3px;
+    height: 3px;
+  }
+
+  @keyframes hero-spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+
+  @keyframes hero-float {
+    from {
+      translate: 0 -7px;
+    }
+    to {
+      translate: 0 7px;
+    }
+  }
+
+  @keyframes hero-spark {
+    0%,
+    100% {
+      opacity: 0.2;
+      scale: 0.7;
+    }
+    50% {
+      opacity: 0.95;
+      scale: 1.15;
+    }
   }
 
   .hero__rule {
@@ -168,6 +383,16 @@ const c = home.hero;
     max-width: 30ch;
   }
 
+  @media (max-width: 600px) {
+    .hero__mark {
+      width: 84%;
+    }
+
+    .hero__float {
+      scale: 0.82;
+    }
+  }
+
   @media (min-width: 900px) {
     .hero__grid {
       grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
@@ -179,6 +404,14 @@ const c = home.hero;
 
     .hero__actions :global(.btn) {
       flex: 0 0 auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__ring--outer,
+    .hero__float,
+    .hero__spark {
+      animation: none;
     }
   }
 </style>

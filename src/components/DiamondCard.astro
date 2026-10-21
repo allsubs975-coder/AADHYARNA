@@ -26,6 +26,9 @@ const { diamond: d, filterable = false, class: className = '' } = Astro.props;
 const family = familyById(d.shapeFamily);
 const href = `/diamonds/${encodeURIComponent(d.id)}/`;
 
+const availability = (d.availability ?? '').trim().toUpperCase();
+const isAvailable = availability === 'YES' || availability === 'AVAILABLE';
+
 const attrs = filterable
   ? {
       'data-family': d.shapeFamily,
@@ -45,13 +48,7 @@ const attrs = filterable
   : {};
 ---
 
-<article
-  class:list={['dcard', className]}
-  data-diamond-card
-  data-id={d.id}
-  {...attrs}
-  style="content-visibility:auto;contain-intrinsic-size:auto 420px;"
->
+<article class:list={['dcard', className]} data-diamond-card data-id={d.id} {...attrs}>
   <a class="dcard__link" href={href}>
     <div class="dcard__media" aria-hidden="true">
       <ShapeSilhouette id={family.silhouette} size="lg" class="dcard__sil" />
@@ -120,7 +117,9 @@ const attrs = filterable
         </button>
       )
     }
-    <span class="dcard__avail">{availabilityLabel(d.availability)}</span>
+    <span class:list={['dcard__avail', isAvailable && 'dcard__avail--on']}>
+      {availabilityLabel(d.availability)}
+    </span>
   </div>
 </article>
 
@@ -184,14 +183,20 @@ const attrs = filterable
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--space-2);
-    padding: var(--space-6) var(--space-4) var(--space-4);
+    gap: var(--space-3);
+    padding: var(--space-6) var(--space-4) var(--space-5);
     background:
-      radial-gradient(120% 90% at 50% 0%, rgb(255 255 255 / 0.9), transparent 70%),
-      var(--color-white);
+      repeating-conic-gradient(
+        from 22.5deg at 50% 42%,
+        rgb(201 162 75 / 0.08) 0deg 5deg,
+        transparent 5deg 45deg
+      ),
+      radial-gradient(120% 95% at 50% 0%, rgb(255 255 255 / 0.96), transparent 72%),
+      linear-gradient(180deg, #fefdfb, #f7f3ea);
     border-bottom: 1px solid var(--color-line);
     color: var(--color-ink-soft);
     isolation: isolate;
+    min-height: 13rem;
   }
 
   /* Soft champagne glow behind the silhouette */
@@ -200,12 +205,12 @@ const attrs = filterable
     position: absolute;
     left: 50%;
     top: 40%;
-    width: 10.5rem;
-    height: 10.5rem;
+    width: 12.5rem;
+    height: 12.5rem;
     translate: -50% -50%;
     border-radius: 50%;
-    background: radial-gradient(circle, rgb(201 162 75 / 0.15), transparent 68%);
-    opacity: 0.65;
+    background: radial-gradient(circle, rgb(201 162 75 / 0.24), transparent 68%);
+    opacity: 0.8;
     transition:
       opacity 280ms var(--ease),
       transform 420ms var(--ease);
@@ -232,7 +237,10 @@ const attrs = filterable
   .dcard__sil {
     position: relative;
     z-index: 1;
-    transition: color 320ms var(--ease);
+    color: var(--color-gold-deep);
+    transition:
+      color 320ms var(--ease),
+      transform 420ms var(--ease);
   }
 
   .dcard__family {
@@ -264,7 +272,7 @@ const attrs = filterable
 
   .dcard__title {
     font-family: var(--font-display);
-    font-size: var(--text-xl);
+    font-size: clamp(1.3rem, 1.12rem + 0.7vw, 1.6rem);
     line-height: var(--leading-snug);
     display: flex;
     flex-wrap: wrap;
@@ -278,10 +286,17 @@ const attrs = filterable
   }
 
   .dcard__shape {
-    font-size: 0.78em;
-    color: var(--color-muted);
-    letter-spacing: 0.04em;
+    font-family: var(--font-sans);
+    font-size: var(--text-2xs);
+    color: var(--color-gold-ink);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
+    font-weight: 600;
+    padding: 0.2em 0.55em;
+    border: 1px solid rgb(201 162 75 / 0.45);
+    border-radius: var(--radius-pill);
+    background-color: rgb(201 162 75 / 0.08);
+    translate: 0 -0.15em;
   }
 
   .dcard__specs {
@@ -371,11 +386,33 @@ const attrs = filterable
   }
 
   .dcard__avail {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
     margin-left: auto;
     font-size: var(--text-2xs);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--color-muted);
+  }
+
+  .dcard__avail::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    flex: none;
+    border-radius: 50%;
+    background-color: currentColor;
+    opacity: 0.45;
+  }
+
+  .dcard__avail--on {
+    color: var(--color-success);
+  }
+
+  .dcard__avail--on::before {
+    opacity: 1;
+    box-shadow: 0 0 0 3px rgb(47 107 79 / 0.14);
   }
 
   /* ---------------------------------------------------------- 3D tilt
@@ -407,14 +444,19 @@ const attrs = filterable
 
     .dcard:hover .dcard__media {
       background:
-        radial-gradient(120% 90% at 50% 0%, rgb(255 255 255 / 0.96), transparent 72%),
-        radial-gradient(90% 55% at 50% 100%, rgb(201 162 75 / 0.07), transparent 70%),
-        var(--color-white);
+        repeating-conic-gradient(
+          from 22.5deg at 50% 42%,
+          rgb(201 162 75 / 0.13) 0deg 5deg,
+          transparent 5deg 45deg
+        ),
+        radial-gradient(120% 95% at 50% 0%, rgb(255 255 255 / 1), transparent 74%),
+        radial-gradient(90% 60% at 50% 108%, rgb(201 162 75 / 0.12), transparent 72%),
+        linear-gradient(180deg, #fffefc, #f6efe1);
     }
 
     .dcard:hover .dcard__media::before {
       opacity: 1;
-      transform: scale(1.1);
+      transform: scale(1.12);
     }
 
     .dcard:hover .dcard__media::after {
@@ -422,7 +464,8 @@ const attrs = filterable
     }
 
     .dcard:hover .dcard__sil {
-      color: var(--color-gold-deep);
+      color: var(--color-gold-ink);
+      transform: scale(1.06);
     }
 
     .dcard:hover .dcard__family {

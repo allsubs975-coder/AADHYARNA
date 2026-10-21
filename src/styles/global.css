@@ -246,6 +246,18 @@
     color: var(--color-gold-ink);
   }
 
+  /* Small rhombus marker — a cut stone, set before every section label. */
+  .eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 0.75em;
+    background-color: currentColor;
+    rotate: 45deg;
+    vertical-align: 0.1em;
+  }
+
   .section--ink .eyebrow {
     color: var(--color-gold-bright);
   }
